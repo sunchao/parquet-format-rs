@@ -15,8 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+#![allow(dead_code)]
+#![allow(non_camel_case_types)]
+
 extern crate ordered_float;
 extern crate thrift;
 extern crate try_from;
 
-pub mod parquet_format;
+mod parquet_format;
+pub use parquet_format::*;
