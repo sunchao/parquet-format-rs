@@ -18,6 +18,8 @@
 [package]
 name = "parquet-format"
 version = "2.4.0"
+license = "Apache-2.0"
+description = "Apache Parquet Format - thrift definition and generated Rust file"
 authors = [
     "Chao Sun <sunchao@apache.org>",
     "Ivan Sadikov <ivan.sadikov@gmail.com>"
