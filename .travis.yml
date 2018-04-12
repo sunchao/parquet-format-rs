@@ -29,3 +29,7 @@ script:
   - cd $TRAVIS_BUILD_DIR
   - travis-cargo build
   - travis-cargo test
+
+env:
+  global:
+    - TRAVIS_CARGO_NIGHTLY_FEATURE=""
