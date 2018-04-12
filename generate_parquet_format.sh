@@ -26,4 +26,4 @@ if [ -f src/$TARGET_FILE ]; then
 fi
 
 thrift --gen rs parquet.thrift
-mv parquet.rs src/parquet_format.rs
+mv parquet.rs src/$TARGET_FILE
