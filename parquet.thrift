@@ -33,7 +33,7 @@ enum Type {
   BOOLEAN = 0;
   INT32 = 1;
   INT64 = 2;
-  INT96 = 3;
+  INT96 = 3;  // deprecated, only used by legacy implementations.
   FLOAT = 4;
   DOUBLE = 5;
   BYTE_ARRAY = 6;
@@ -257,9 +257,11 @@ struct DecimalType {
 /** Time units for logical types */
 struct MilliSeconds {}
 struct MicroSeconds {}
+struct NanoSeconds {}
 union TimeUnit {
   1: MilliSeconds MILLIS
   2: MicroSeconds MICROS
+  3: NanoSeconds NANOS
 }
 
 /**
@@ -275,7 +277,7 @@ struct TimestampType {
 /**
  * Time logical type annotation
  *
- * Allowed for physical types: INT32 (millis), INT64 (micros)
+ * Allowed for physical types: INT32 (millis), INT64 (micros, nanos)
  */
 struct TimeType {
   1: required bool isAdjustedToUTC
@@ -318,7 +320,7 @@ struct BsonType {
  * following table.
  */
 union LogicalType {
-  1:  StringType STRING       // use ConvertedType UTF8 if encoding is UTF-8
+  1:  StringType STRING       // use ConvertedType UTF8
   2:  MapType MAP             // use ConvertedType MAP
   3:  ListType LIST           // use ConvertedType LIST
   4:  EnumType ENUM           // use ConvertedType ENUM
@@ -331,6 +333,7 @@ union LogicalType {
   11: NullType UNKNOWN        // no compatible ConvertedType
   12: JsonType JSON           // use ConvertedType JSON
   13: BsonType BSON           // use ConvertedType BSON
+  14: UUIDType UUID
 }
 
 /**
@@ -381,7 +384,7 @@ struct SchemaElement {
   9: optional i32 field_id;
 
   /**
-   * The logical type of this SchemaElement; only valid for primitives.
+   * The logical type of this SchemaElement
    *
    * LogicalType replaces ConvertedType, but ConvertedType is still required
    * for some logical types to ensure forward-compatibility in format v1.
@@ -452,7 +455,7 @@ enum Encoding {
 /**
  * Supported compression algorithms.
  *
- * Codecs added in 2.3.2 can be read by readers based on 2.3.2 and later.
+ * Codecs added in 2.4 can be read by readers based on 2.4 and later.
  * Codec support may vary between readers based on the format version and
  * libraries available at runtime. Gzip, Snappy, and LZ4 codecs are
  * widely available, while Zstd and Brotli require additional libraries.
@@ -462,9 +465,9 @@ enum CompressionCodec {
   SNAPPY = 1;
   GZIP = 2;
   LZO = 3;
-  BROTLI = 4; // Added in 2.3.2
-  LZ4 = 5;    // Added in 2.3.2
-  ZSTD = 6;   // Added in 2.3.2
+  BROTLI = 4; // Added in 2.4
+  LZ4 = 5;    // Added in 2.4
+  ZSTD = 6;   // Added in 2.4
 }
 
 enum PageType {
@@ -750,11 +753,20 @@ union ColumnOrder {
    *   BOOLEAN - false, true
    *   INT32 - signed comparison
    *   INT64 - signed comparison
-   *   INT96 (only used for legacy timestamps) - unsigned comparison
-   *   FLOAT - signed comparison of the represented value
-   *   DOUBLE - signed comparison of the represented value
+   *   INT96 (only used for legacy timestamps) - undefined
+   *   FLOAT - signed comparison of the represented value (*)
+   *   DOUBLE - signed comparison of the represented value (*)
    *   BYTE_ARRAY - unsigned byte-wise comparison
    *   FIXED_LEN_BYTE_ARRAY - unsigned byte-wise comparison
+   *
+   * (*) Because the sorting order is not specified properly for floating
+   *     point values (relations vs. total ordering) the following
+   *     compatibility rules should be applied when reading statistics:
+   *     - If the min is a NaN, it should be ignored.
+   *     - If the max is a NaN, it should be ignored.
+   *     - If the min is +0, the row group may contain -0 values as well.
+   *     - If the max is -0, the row group may contain +0 values as well.
+   *     - When looking for NaN values, min and max should be ignored.
    */
   1: TypeDefinedOrder TYPE_ORDER;
 }
