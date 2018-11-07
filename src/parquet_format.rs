@@ -1116,6 +1116,51 @@ impl Default for MicroSeconds {
 }
 
 //
+// NanoSeconds
+//
+
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct NanoSeconds {
+}
+
+impl NanoSeconds {
+  pub fn new() -> NanoSeconds {
+    NanoSeconds {}
+  }
+  pub fn read_from_in_protocol(i_prot: &mut TInputProtocol) -> thrift::Result<NanoSeconds> {
+    i_prot.read_struct_begin()?;
+    loop {
+      let field_ident = i_prot.read_field_begin()?;
+      if field_ident.field_type == TType::Stop {
+        break;
+      }
+      let field_id = field_id(&field_ident)?;
+      match field_id {
+        _ => {
+          i_prot.skip(field_ident.field_type)?;
+        },
+      };
+      i_prot.read_field_end()?;
+    }
+    i_prot.read_struct_end()?;
+    let ret = NanoSeconds {};
+    Ok(ret)
+  }
+  pub fn write_to_out_protocol(&self, o_prot: &mut TOutputProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("NanoSeconds");
+    o_prot.write_struct_begin(&struct_ident)?;
+    o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+}
+
+impl Default for NanoSeconds {
+  fn default() -> Self {
+    NanoSeconds{}
+  }
+}
+
+//
 // TimeUnit
 //
 
@@ -1123,6 +1168,7 @@ impl Default for MicroSeconds {
 pub enum TimeUnit {
   MILLIS(MilliSeconds),
   MICROS(MicroSeconds),
+  NANOS(NanoSeconds),
 }
 
 impl TimeUnit {
@@ -1148,6 +1194,13 @@ impl TimeUnit {
           let val = MicroSeconds::read_from_in_protocol(i_prot)?;
           if ret.is_none() {
             ret = Some(TimeUnit::MICROS(val));
+          }
+          received_field_count += 1;
+        },
+        3 => {
+          let val = NanoSeconds::read_from_in_protocol(i_prot)?;
+          if ret.is_none() {
+            ret = Some(TimeUnit::NANOS(val));
           }
           received_field_count += 1;
         },
@@ -1192,6 +1245,11 @@ impl TimeUnit {
       },
       TimeUnit::MICROS(ref f) => {
         o_prot.write_field_begin(&TFieldIdentifier::new("MICROS", TType::Struct, 2))?;
+        f.write_to_out_protocol(o_prot)?;
+        o_prot.write_field_end()?;
+      },
+      TimeUnit::NANOS(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("NANOS", TType::Struct, 3))?;
         f.write_to_out_protocol(o_prot)?;
         o_prot.write_field_end()?;
       },
@@ -1275,7 +1333,7 @@ impl TimestampType {
 
 /// Time logical type annotation
 /// 
-/// Allowed for physical types: INT32 (millis), INT64 (micros)
+/// Allowed for physical types: INT32 (millis), INT64 (micros, nanos)
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct TimeType {
   pub is_adjusted_to_u_t_c: bool,
@@ -1521,6 +1579,7 @@ pub enum LogicalType {
   UNKNOWN(NullType),
   JSON(JsonType),
   BSON(BsonType),
+  UUID(UUIDType),
 }
 
 impl LogicalType {
@@ -1619,6 +1678,13 @@ impl LogicalType {
           }
           received_field_count += 1;
         },
+        14 => {
+          let val = UUIDType::read_from_in_protocol(i_prot)?;
+          if ret.is_none() {
+            ret = Some(LogicalType::UUID(val));
+          }
+          received_field_count += 1;
+        },
         _ => {
           i_prot.skip(field_ident.field_type)?;
           received_field_count += 1;
@@ -1713,6 +1779,11 @@ impl LogicalType {
         f.write_to_out_protocol(o_prot)?;
         o_prot.write_field_end()?;
       },
+      LogicalType::UUID(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("UUID", TType::Struct, 14))?;
+        f.write_to_out_protocol(o_prot)?;
+        o_prot.write_field_end()?;
+      },
     }
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
@@ -1756,7 +1827,7 @@ pub struct SchemaElement {
   /// When the original schema supports field ids, this will save the
   /// original field id in the parquet schema
   pub field_id: Option<i32>,
-  /// The logical type of this SchemaElement; only valid for primitives.
+  /// The logical type of this SchemaElement
   /// 
   /// LogicalType replaces ConvertedType, but ConvertedType is still required
   /// for some logical types to ensure forward-compatibility in format v1.
