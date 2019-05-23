@@ -31,6 +31,6 @@ repository = "https://github.com/sunchao/parquet-format-rs"
 keywords = ["parquet", "hadoop"]
 
 [dependencies]
-ordered-float = "1.0.1"
-thrift = "0.0.4"
-try_from = "0.2.2"
+ordered-float = "1.0.2"
+thrift = "0.12.0"
+try_from = "0.3.2"
