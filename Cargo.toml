@@ -17,7 +17,7 @@
 
 [package]
 name = "parquet-format"
-version = "2.6.0"
+version = "3.0.0"
 license = "Apache-2.0"
 description = "Apache Parquet Format - thrift definition and generated Rust file"
 authors = [
