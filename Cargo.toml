@@ -24,6 +24,7 @@ authors = [
     "Chao Sun <sunchao@apache.org>",
     "Ivan Sadikov <ivan.sadikov@gmail.com>"
 ]
+edition = "2018"
 
 readme = "README.md"
 homepage = "https://github.com/sunchao/parquet-format-rs"
@@ -31,5 +32,4 @@ repository = "https://github.com/sunchao/parquet-format-rs"
 keywords = ["parquet", "hadoop"]
 
 [dependencies]
-ordered-float = "1.0"
 thrift = "0.13"

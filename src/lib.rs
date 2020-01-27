@@ -18,8 +18,5 @@
 #![allow(dead_code)]
 #![allow(non_camel_case_types)]
 
-extern crate ordered_float;
-extern crate thrift;
-
 mod parquet_format;
-pub use parquet_format::*;
+pub use crate::parquet_format::*;
