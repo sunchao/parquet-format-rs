@@ -298,6 +298,13 @@ pub enum Encoding {
   DeltaByteArray = 7,
   /// Dictionary encoding: the ids are encoded using the RLE encoding
   RleDictionary = 8,
+  /// Encoding for floating-point data.
+  /// K byte-streams are created where K is the size in bytes of the data type.
+  /// The individual bytes of an FP value are scattered to the corresponding stream and
+  /// the streams are concatenated.
+  /// This itself does not reduce the size of the data but can lead to better compression
+  /// afterwards.
+  ByteStreamSplit = 9,
 }
 
 impl Encoding {
@@ -320,6 +327,7 @@ impl TryFrom<i32> for Encoding {
       6 => Ok(Encoding::DeltaLengthByteArray),
       7 => Ok(Encoding::DeltaByteArray),
       8 => Ok(Encoding::RleDictionary),
+      9 => Ok(Encoding::ByteStreamSplit),
       _ => {
         Err(
           thrift::Error::Protocol(

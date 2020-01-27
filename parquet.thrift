@@ -292,7 +292,7 @@ struct TimeType {
  * Allowed for physical types: INT32, INT64
  */
 struct IntType {
-  1: required byte bitWidth
+  1: required i8 bitWidth
   2: required bool isSigned
 }
 
@@ -457,6 +457,15 @@ enum Encoding {
   /** Dictionary encoding: the ids are encoded using the RLE encoding
    */
   RLE_DICTIONARY = 8;
+
+  /** Encoding for floating-point data.
+      K byte-streams are created where K is the size in bytes of the data type.
+      The individual bytes of an FP value are scattered to the corresponding stream and
+      the streams are concatenated.
+      This itself does not reduce the size of the data but can lead to better compression
+      afterwards.
+   */
+  BYTE_STREAM_SPLIT = 9;
 }
 
 /**
