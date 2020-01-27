@@ -20,7 +20,6 @@
 
 extern crate ordered_float;
 extern crate thrift;
-extern crate try_from;
 
 mod parquet_format;
 pub use parquet_format::*;

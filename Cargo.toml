@@ -32,5 +32,4 @@ keywords = ["parquet", "hadoop"]
 
 [dependencies]
 ordered-float = "1.0"
-thrift = "0.12"
-try_from = "0.3"
+thrift = "0.13"
