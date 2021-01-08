@@ -133,7 +133,7 @@ pub enum ConvertedType {
   TimestampMicros = 10,
   /// An unsigned integer value.
   /// 
-  /// The number describes the maximum number of meainful data bits in
+  /// The number describes the maximum number of meaningful data bits in
   /// the stored value. 8, 16 and 32 bit values are stored using the
   /// INT32 physical type.  64 bit values are stored using the INT64
   /// physical type.
@@ -144,7 +144,7 @@ pub enum ConvertedType {
   Uint64 = 14,
   /// A signed integer value.
   /// 
-  /// The number describes the maximum number of meainful data bits in
+  /// The number describes the maximum number of meaningful data bits in
   /// the stored value. 8, 16 and 32 bit values are stored using the
   /// INT32 physical type.  64 bit values are stored using the INT64
   /// physical type.
@@ -2170,7 +2170,6 @@ impl Default for IndexPageHeader {
 // DictionaryPageHeader
 //
 
-/// TODO: *
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct DictionaryPageHeader {
   /// Number of values in the dictionary *
@@ -2414,6 +2413,462 @@ impl DataPageHeaderV2 {
 }
 
 //
+// SplitBlockAlgorithm
+//
+
+/// Block-based algorithm type annotation. *
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct SplitBlockAlgorithm {
+}
+
+impl SplitBlockAlgorithm {
+  pub fn new() -> SplitBlockAlgorithm {
+    SplitBlockAlgorithm {}
+  }
+  pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<SplitBlockAlgorithm> {
+    i_prot.read_struct_begin()?;
+    loop {
+      let field_ident = i_prot.read_field_begin()?;
+      if field_ident.field_type == TType::Stop {
+        break;
+      }
+      let field_id = field_id(&field_ident)?;
+      match field_id {
+        _ => {
+          i_prot.skip(field_ident.field_type)?;
+        },
+      };
+      i_prot.read_field_end()?;
+    }
+    i_prot.read_struct_end()?;
+    let ret = SplitBlockAlgorithm {};
+    Ok(ret)
+  }
+  pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("SplitBlockAlgorithm");
+    o_prot.write_struct_begin(&struct_ident)?;
+    o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+}
+
+impl Default for SplitBlockAlgorithm {
+  fn default() -> Self {
+    SplitBlockAlgorithm{}
+  }
+}
+
+//
+// BloomFilterAlgorithm
+//
+
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub enum BloomFilterAlgorithm {
+  BLOCK(SplitBlockAlgorithm),
+}
+
+impl BloomFilterAlgorithm {
+  pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<BloomFilterAlgorithm> {
+    let mut ret: Option<BloomFilterAlgorithm> = None;
+    let mut received_field_count = 0;
+    i_prot.read_struct_begin()?;
+    loop {
+      let field_ident = i_prot.read_field_begin()?;
+      if field_ident.field_type == TType::Stop {
+        break;
+      }
+      let field_id = field_id(&field_ident)?;
+      match field_id {
+        1 => {
+          let val = SplitBlockAlgorithm::read_from_in_protocol(i_prot)?;
+          if ret.is_none() {
+            ret = Some(BloomFilterAlgorithm::BLOCK(val));
+          }
+          received_field_count += 1;
+        },
+        _ => {
+          i_prot.skip(field_ident.field_type)?;
+          received_field_count += 1;
+        },
+      };
+      i_prot.read_field_end()?;
+    }
+    i_prot.read_struct_end()?;
+    if received_field_count == 0 {
+      Err(
+        thrift::Error::Protocol(
+          ProtocolError::new(
+            ProtocolErrorKind::InvalidData,
+            "received empty union from remote BloomFilterAlgorithm"
+          )
+        )
+      )
+    } else if received_field_count > 1 {
+      Err(
+        thrift::Error::Protocol(
+          ProtocolError::new(
+            ProtocolErrorKind::InvalidData,
+            "received multiple fields for union from remote BloomFilterAlgorithm"
+          )
+        )
+      )
+    } else {
+      Ok(ret.expect("return value should have been constructed"))
+    }
+  }
+  pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("BloomFilterAlgorithm");
+    o_prot.write_struct_begin(&struct_ident)?;
+    match *self {
+      BloomFilterAlgorithm::BLOCK(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("BLOCK", TType::Struct, 1))?;
+        f.write_to_out_protocol(o_prot)?;
+        o_prot.write_field_end()?;
+      },
+    }
+    o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+}
+
+//
+// XxHash
+//
+
+/// Hash strategy type annotation. xxHash is an extremely fast non-cryptographic hash
+/// algorithm. It uses 64 bits version of xxHash.
+/// 
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct XxHash {
+}
+
+impl XxHash {
+  pub fn new() -> XxHash {
+    XxHash {}
+  }
+  pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<XxHash> {
+    i_prot.read_struct_begin()?;
+    loop {
+      let field_ident = i_prot.read_field_begin()?;
+      if field_ident.field_type == TType::Stop {
+        break;
+      }
+      let field_id = field_id(&field_ident)?;
+      match field_id {
+        _ => {
+          i_prot.skip(field_ident.field_type)?;
+        },
+      };
+      i_prot.read_field_end()?;
+    }
+    i_prot.read_struct_end()?;
+    let ret = XxHash {};
+    Ok(ret)
+  }
+  pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("XxHash");
+    o_prot.write_struct_begin(&struct_ident)?;
+    o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+}
+
+impl Default for XxHash {
+  fn default() -> Self {
+    XxHash{}
+  }
+}
+
+//
+// BloomFilterHash
+//
+
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub enum BloomFilterHash {
+  XXHASH(XxHash),
+}
+
+impl BloomFilterHash {
+  pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<BloomFilterHash> {
+    let mut ret: Option<BloomFilterHash> = None;
+    let mut received_field_count = 0;
+    i_prot.read_struct_begin()?;
+    loop {
+      let field_ident = i_prot.read_field_begin()?;
+      if field_ident.field_type == TType::Stop {
+        break;
+      }
+      let field_id = field_id(&field_ident)?;
+      match field_id {
+        1 => {
+          let val = XxHash::read_from_in_protocol(i_prot)?;
+          if ret.is_none() {
+            ret = Some(BloomFilterHash::XXHASH(val));
+          }
+          received_field_count += 1;
+        },
+        _ => {
+          i_prot.skip(field_ident.field_type)?;
+          received_field_count += 1;
+        },
+      };
+      i_prot.read_field_end()?;
+    }
+    i_prot.read_struct_end()?;
+    if received_field_count == 0 {
+      Err(
+        thrift::Error::Protocol(
+          ProtocolError::new(
+            ProtocolErrorKind::InvalidData,
+            "received empty union from remote BloomFilterHash"
+          )
+        )
+      )
+    } else if received_field_count > 1 {
+      Err(
+        thrift::Error::Protocol(
+          ProtocolError::new(
+            ProtocolErrorKind::InvalidData,
+            "received multiple fields for union from remote BloomFilterHash"
+          )
+        )
+      )
+    } else {
+      Ok(ret.expect("return value should have been constructed"))
+    }
+  }
+  pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("BloomFilterHash");
+    o_prot.write_struct_begin(&struct_ident)?;
+    match *self {
+      BloomFilterHash::XXHASH(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("XXHASH", TType::Struct, 1))?;
+        f.write_to_out_protocol(o_prot)?;
+        o_prot.write_field_end()?;
+      },
+    }
+    o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+}
+
+//
+// Uncompressed
+//
+
+/// The compression used in the Bloom filter.
+/// 
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct Uncompressed {
+}
+
+impl Uncompressed {
+  pub fn new() -> Uncompressed {
+    Uncompressed {}
+  }
+  pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<Uncompressed> {
+    i_prot.read_struct_begin()?;
+    loop {
+      let field_ident = i_prot.read_field_begin()?;
+      if field_ident.field_type == TType::Stop {
+        break;
+      }
+      let field_id = field_id(&field_ident)?;
+      match field_id {
+        _ => {
+          i_prot.skip(field_ident.field_type)?;
+        },
+      };
+      i_prot.read_field_end()?;
+    }
+    i_prot.read_struct_end()?;
+    let ret = Uncompressed {};
+    Ok(ret)
+  }
+  pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("Uncompressed");
+    o_prot.write_struct_begin(&struct_ident)?;
+    o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+}
+
+impl Default for Uncompressed {
+  fn default() -> Self {
+    Uncompressed{}
+  }
+}
+
+//
+// BloomFilterCompression
+//
+
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub enum BloomFilterCompression {
+  UNCOMPRESSED(Uncompressed),
+}
+
+impl BloomFilterCompression {
+  pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<BloomFilterCompression> {
+    let mut ret: Option<BloomFilterCompression> = None;
+    let mut received_field_count = 0;
+    i_prot.read_struct_begin()?;
+    loop {
+      let field_ident = i_prot.read_field_begin()?;
+      if field_ident.field_type == TType::Stop {
+        break;
+      }
+      let field_id = field_id(&field_ident)?;
+      match field_id {
+        1 => {
+          let val = Uncompressed::read_from_in_protocol(i_prot)?;
+          if ret.is_none() {
+            ret = Some(BloomFilterCompression::UNCOMPRESSED(val));
+          }
+          received_field_count += 1;
+        },
+        _ => {
+          i_prot.skip(field_ident.field_type)?;
+          received_field_count += 1;
+        },
+      };
+      i_prot.read_field_end()?;
+    }
+    i_prot.read_struct_end()?;
+    if received_field_count == 0 {
+      Err(
+        thrift::Error::Protocol(
+          ProtocolError::new(
+            ProtocolErrorKind::InvalidData,
+            "received empty union from remote BloomFilterCompression"
+          )
+        )
+      )
+    } else if received_field_count > 1 {
+      Err(
+        thrift::Error::Protocol(
+          ProtocolError::new(
+            ProtocolErrorKind::InvalidData,
+            "received multiple fields for union from remote BloomFilterCompression"
+          )
+        )
+      )
+    } else {
+      Ok(ret.expect("return value should have been constructed"))
+    }
+  }
+  pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("BloomFilterCompression");
+    o_prot.write_struct_begin(&struct_ident)?;
+    match *self {
+      BloomFilterCompression::UNCOMPRESSED(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("UNCOMPRESSED", TType::Struct, 1))?;
+        f.write_to_out_protocol(o_prot)?;
+        o_prot.write_field_end()?;
+      },
+    }
+    o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+}
+
+//
+// BloomFilterHeader
+//
+
+/// Bloom filter header is stored at beginning of Bloom filter data of each column
+/// and followed by its bitset.
+/// 
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct BloomFilterHeader {
+  /// The size of bitset in bytes *
+  pub num_bytes: i32,
+  /// The algorithm for setting bits. *
+  pub algorithm: BloomFilterAlgorithm,
+  /// The hash function used for Bloom filter. *
+  pub hash: BloomFilterHash,
+  /// The compression used in the Bloom filter *
+  pub compression: BloomFilterCompression,
+}
+
+impl BloomFilterHeader {
+  pub fn new(num_bytes: i32, algorithm: BloomFilterAlgorithm, hash: BloomFilterHash, compression: BloomFilterCompression) -> BloomFilterHeader {
+    BloomFilterHeader {
+      num_bytes: num_bytes,
+      algorithm: algorithm,
+      hash: hash,
+      compression: compression,
+    }
+  }
+  pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<BloomFilterHeader> {
+    i_prot.read_struct_begin()?;
+    let mut f_1: Option<i32> = None;
+    let mut f_2: Option<BloomFilterAlgorithm> = None;
+    let mut f_3: Option<BloomFilterHash> = None;
+    let mut f_4: Option<BloomFilterCompression> = None;
+    loop {
+      let field_ident = i_prot.read_field_begin()?;
+      if field_ident.field_type == TType::Stop {
+        break;
+      }
+      let field_id = field_id(&field_ident)?;
+      match field_id {
+        1 => {
+          let val = i_prot.read_i32()?;
+          f_1 = Some(val);
+        },
+        2 => {
+          let val = BloomFilterAlgorithm::read_from_in_protocol(i_prot)?;
+          f_2 = Some(val);
+        },
+        3 => {
+          let val = BloomFilterHash::read_from_in_protocol(i_prot)?;
+          f_3 = Some(val);
+        },
+        4 => {
+          let val = BloomFilterCompression::read_from_in_protocol(i_prot)?;
+          f_4 = Some(val);
+        },
+        _ => {
+          i_prot.skip(field_ident.field_type)?;
+        },
+      };
+      i_prot.read_field_end()?;
+    }
+    i_prot.read_struct_end()?;
+    verify_required_field_exists("BloomFilterHeader.num_bytes", &f_1)?;
+    verify_required_field_exists("BloomFilterHeader.algorithm", &f_2)?;
+    verify_required_field_exists("BloomFilterHeader.hash", &f_3)?;
+    verify_required_field_exists("BloomFilterHeader.compression", &f_4)?;
+    let ret = BloomFilterHeader {
+      num_bytes: f_1.expect("auto-generated code should have checked for presence of required fields"),
+      algorithm: f_2.expect("auto-generated code should have checked for presence of required fields"),
+      hash: f_3.expect("auto-generated code should have checked for presence of required fields"),
+      compression: f_4.expect("auto-generated code should have checked for presence of required fields"),
+    };
+    Ok(ret)
+  }
+  pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("BloomFilterHeader");
+    o_prot.write_struct_begin(&struct_ident)?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("numBytes", TType::I32, 1))?;
+    o_prot.write_i32(self.num_bytes)?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("algorithm", TType::Struct, 2))?;
+    self.algorithm.write_to_out_protocol(o_prot)?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("hash", TType::Struct, 3))?;
+    self.hash.write_to_out_protocol(o_prot)?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("compression", TType::Struct, 4))?;
+    self.compression.write_to_out_protocol(o_prot)?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+}
+
+//
 // PageHeader
 //
 
@@ -2423,10 +2878,31 @@ pub struct PageHeader {
   pub type_: PageType,
   /// Uncompressed page size in bytes (not including this header) *
   pub uncompressed_page_size: i32,
-  /// Compressed page size in bytes (not including this header) *
+  /// Compressed (and potentially encrypted) page size in bytes, not including this header *
   pub compressed_page_size: i32,
-  /// 32bit crc for the data below. This allows for disabling checksumming in HDFS
-  /// if only a few pages needs to be read
+  /// The 32bit CRC for the page, to be be calculated as follows:
+  /// - Using the standard CRC32 algorithm
+  /// - On the data only, i.e. this header should not be included. 'Data'
+  ///   hereby refers to the concatenation of the repetition levels, the
+  ///   definition levels and the column value, in this exact order.
+  /// - On the encoded versions of the repetition levels, definition levels and
+  ///   column values
+  /// - On the compressed versions of the repetition levels, definition levels
+  ///   and column values where possible;
+  ///   - For v1 data pages, the repetition levels, definition levels and column
+  ///     values are always compressed together. If a compression scheme is
+  ///     specified, the CRC shall be calculated on the compressed version of
+  ///     this concatenation. If no compression scheme is specified, the CRC
+  ///     shall be calculated on the uncompressed version of this concatenation.
+  ///   - For v2 data pages, the repetition levels and definition levels are
+  ///     handled separately from the data and are never compressed (only
+  ///     encoded). If a compression scheme is specified, the CRC shall be
+  ///     calculated on the concatenation of the uncompressed repetition levels,
+  ///     uncompressed definition levels and the compressed column values.
+  ///     If no compression scheme is specified, the CRC shall be calculated on
+  ///     the uncompressed concatenation.
+  /// If enabled, this allows for disabling checksumming in HDFS if only a few
+  /// pages need to be read.
   /// 
   pub crc: Option<i32>,
   pub data_page_header: Option<DataPageHeader>,
@@ -2829,7 +3305,8 @@ pub struct ColumnMetaData {
   pub num_values: i64,
   /// total byte size of all uncompressed pages in this column chunk (including the headers) *
   pub total_uncompressed_size: i64,
-  /// total byte size of all compressed pages in this column chunk (including the headers) *
+  /// total byte size of all compressed, and potentially encrypted, pages
+  /// in this column chunk (including the headers) *
   pub total_compressed_size: i64,
   /// Optional key/value metadata *
   pub key_value_metadata: Option<Vec<KeyValue>>,
@@ -2845,10 +3322,12 @@ pub struct ColumnMetaData {
   /// This information can be used to determine if all data pages are
   /// dictionary encoded for example *
   pub encoding_stats: Option<Vec<PageEncodingStats>>,
+  /// Byte offset from beginning of file to Bloom filter data. *
+  pub bloom_filter_offset: Option<i64>,
 }
 
 impl ColumnMetaData {
-  pub fn new<F8, F10, F11, F12, F13>(type_: Type, encodings: Vec<Encoding>, path_in_schema: Vec<String>, codec: CompressionCodec, num_values: i64, total_uncompressed_size: i64, total_compressed_size: i64, key_value_metadata: F8, data_page_offset: i64, index_page_offset: F10, dictionary_page_offset: F11, statistics: F12, encoding_stats: F13) -> ColumnMetaData where F8: Into<Option<Vec<KeyValue>>>, F10: Into<Option<i64>>, F11: Into<Option<i64>>, F12: Into<Option<Statistics>>, F13: Into<Option<Vec<PageEncodingStats>>> {
+  pub fn new<F8, F10, F11, F12, F13, F14>(type_: Type, encodings: Vec<Encoding>, path_in_schema: Vec<String>, codec: CompressionCodec, num_values: i64, total_uncompressed_size: i64, total_compressed_size: i64, key_value_metadata: F8, data_page_offset: i64, index_page_offset: F10, dictionary_page_offset: F11, statistics: F12, encoding_stats: F13, bloom_filter_offset: F14) -> ColumnMetaData where F8: Into<Option<Vec<KeyValue>>>, F10: Into<Option<i64>>, F11: Into<Option<i64>>, F12: Into<Option<Statistics>>, F13: Into<Option<Vec<PageEncodingStats>>>, F14: Into<Option<i64>> {
     ColumnMetaData {
       type_: type_,
       encodings: encodings,
@@ -2863,6 +3342,7 @@ impl ColumnMetaData {
       dictionary_page_offset: dictionary_page_offset.into(),
       statistics: statistics.into(),
       encoding_stats: encoding_stats.into(),
+      bloom_filter_offset: bloom_filter_offset.into(),
     }
   }
   pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<ColumnMetaData> {
@@ -2880,6 +3360,7 @@ impl ColumnMetaData {
     let mut f_11: Option<i64> = None;
     let mut f_12: Option<Statistics> = None;
     let mut f_13: Option<Vec<PageEncodingStats>> = None;
+    let mut f_14: Option<i64> = None;
     loop {
       let field_ident = i_prot.read_field_begin()?;
       if field_ident.field_type == TType::Stop {
@@ -2963,6 +3444,10 @@ impl ColumnMetaData {
           i_prot.read_list_end()?;
           f_13 = Some(val);
         },
+        14 => {
+          let val = i_prot.read_i64()?;
+          f_14 = Some(val);
+        },
         _ => {
           i_prot.skip(field_ident.field_type)?;
         },
@@ -2992,6 +3477,7 @@ impl ColumnMetaData {
       dictionary_page_offset: f_11,
       statistics: f_12,
       encoding_stats: f_13,
+      bloom_filter_offset: f_14,
     };
     Ok(ret)
   }
@@ -3078,6 +3564,226 @@ impl ColumnMetaData {
     } else {
       ()
     }
+    if let Some(fld_var) = self.bloom_filter_offset {
+      o_prot.write_field_begin(&TFieldIdentifier::new("bloom_filter_offset", TType::I64, 14))?;
+      o_prot.write_i64(fld_var)?;
+      o_prot.write_field_end()?;
+      ()
+    } else {
+      ()
+    }
+    o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+}
+
+//
+// EncryptionWithFooterKey
+//
+
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct EncryptionWithFooterKey {
+}
+
+impl EncryptionWithFooterKey {
+  pub fn new() -> EncryptionWithFooterKey {
+    EncryptionWithFooterKey {}
+  }
+  pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<EncryptionWithFooterKey> {
+    i_prot.read_struct_begin()?;
+    loop {
+      let field_ident = i_prot.read_field_begin()?;
+      if field_ident.field_type == TType::Stop {
+        break;
+      }
+      let field_id = field_id(&field_ident)?;
+      match field_id {
+        _ => {
+          i_prot.skip(field_ident.field_type)?;
+        },
+      };
+      i_prot.read_field_end()?;
+    }
+    i_prot.read_struct_end()?;
+    let ret = EncryptionWithFooterKey {};
+    Ok(ret)
+  }
+  pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("EncryptionWithFooterKey");
+    o_prot.write_struct_begin(&struct_ident)?;
+    o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+}
+
+impl Default for EncryptionWithFooterKey {
+  fn default() -> Self {
+    EncryptionWithFooterKey{}
+  }
+}
+
+//
+// EncryptionWithColumnKey
+//
+
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct EncryptionWithColumnKey {
+  /// Column path in schema *
+  pub path_in_schema: Vec<String>,
+  /// Retrieval metadata of column encryption key *
+  pub key_metadata: Option<Vec<u8>>,
+}
+
+impl EncryptionWithColumnKey {
+  pub fn new<F2>(path_in_schema: Vec<String>, key_metadata: F2) -> EncryptionWithColumnKey where F2: Into<Option<Vec<u8>>> {
+    EncryptionWithColumnKey {
+      path_in_schema: path_in_schema,
+      key_metadata: key_metadata.into(),
+    }
+  }
+  pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<EncryptionWithColumnKey> {
+    i_prot.read_struct_begin()?;
+    let mut f_1: Option<Vec<String>> = None;
+    let mut f_2: Option<Vec<u8>> = None;
+    loop {
+      let field_ident = i_prot.read_field_begin()?;
+      if field_ident.field_type == TType::Stop {
+        break;
+      }
+      let field_id = field_id(&field_ident)?;
+      match field_id {
+        1 => {
+          let list_ident = i_prot.read_list_begin()?;
+          let mut val: Vec<String> = Vec::with_capacity(list_ident.size as usize);
+          for _ in 0..list_ident.size {
+            let list_elem_4 = i_prot.read_string()?;
+            val.push(list_elem_4);
+          }
+          i_prot.read_list_end()?;
+          f_1 = Some(val);
+        },
+        2 => {
+          let val = i_prot.read_bytes()?;
+          f_2 = Some(val);
+        },
+        _ => {
+          i_prot.skip(field_ident.field_type)?;
+        },
+      };
+      i_prot.read_field_end()?;
+    }
+    i_prot.read_struct_end()?;
+    verify_required_field_exists("EncryptionWithColumnKey.path_in_schema", &f_1)?;
+    let ret = EncryptionWithColumnKey {
+      path_in_schema: f_1.expect("auto-generated code should have checked for presence of required fields"),
+      key_metadata: f_2,
+    };
+    Ok(ret)
+  }
+  pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("EncryptionWithColumnKey");
+    o_prot.write_struct_begin(&struct_ident)?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("path_in_schema", TType::List, 1))?;
+    o_prot.write_list_begin(&TListIdentifier::new(TType::String, self.path_in_schema.len() as i32))?;
+    for e in &self.path_in_schema {
+      o_prot.write_string(e)?;
+      o_prot.write_list_end()?;
+    }
+    o_prot.write_field_end()?;
+    if let Some(ref fld_var) = self.key_metadata {
+      o_prot.write_field_begin(&TFieldIdentifier::new("key_metadata", TType::String, 2))?;
+      o_prot.write_bytes(fld_var)?;
+      o_prot.write_field_end()?;
+      ()
+    } else {
+      ()
+    }
+    o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+}
+
+//
+// ColumnCryptoMetaData
+//
+
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub enum ColumnCryptoMetaData {
+  ENCRYPTIONWITHFOOTERKEY(EncryptionWithFooterKey),
+  ENCRYPTIONWITHCOLUMNKEY(EncryptionWithColumnKey),
+}
+
+impl ColumnCryptoMetaData {
+  pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<ColumnCryptoMetaData> {
+    let mut ret: Option<ColumnCryptoMetaData> = None;
+    let mut received_field_count = 0;
+    i_prot.read_struct_begin()?;
+    loop {
+      let field_ident = i_prot.read_field_begin()?;
+      if field_ident.field_type == TType::Stop {
+        break;
+      }
+      let field_id = field_id(&field_ident)?;
+      match field_id {
+        1 => {
+          let val = EncryptionWithFooterKey::read_from_in_protocol(i_prot)?;
+          if ret.is_none() {
+            ret = Some(ColumnCryptoMetaData::ENCRYPTIONWITHFOOTERKEY(val));
+          }
+          received_field_count += 1;
+        },
+        2 => {
+          let val = EncryptionWithColumnKey::read_from_in_protocol(i_prot)?;
+          if ret.is_none() {
+            ret = Some(ColumnCryptoMetaData::ENCRYPTIONWITHCOLUMNKEY(val));
+          }
+          received_field_count += 1;
+        },
+        _ => {
+          i_prot.skip(field_ident.field_type)?;
+          received_field_count += 1;
+        },
+      };
+      i_prot.read_field_end()?;
+    }
+    i_prot.read_struct_end()?;
+    if received_field_count == 0 {
+      Err(
+        thrift::Error::Protocol(
+          ProtocolError::new(
+            ProtocolErrorKind::InvalidData,
+            "received empty union from remote ColumnCryptoMetaData"
+          )
+        )
+      )
+    } else if received_field_count > 1 {
+      Err(
+        thrift::Error::Protocol(
+          ProtocolError::new(
+            ProtocolErrorKind::InvalidData,
+            "received multiple fields for union from remote ColumnCryptoMetaData"
+          )
+        )
+      )
+    } else {
+      Ok(ret.expect("return value should have been constructed"))
+    }
+  }
+  pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("ColumnCryptoMetaData");
+    o_prot.write_struct_begin(&struct_ident)?;
+    match *self {
+      ColumnCryptoMetaData::ENCRYPTIONWITHFOOTERKEY(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("ENCRYPTION_WITH_FOOTER_KEY", TType::Struct, 1))?;
+        f.write_to_out_protocol(o_prot)?;
+        o_prot.write_field_end()?;
+      },
+      ColumnCryptoMetaData::ENCRYPTIONWITHCOLUMNKEY(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("ENCRYPTION_WITH_COLUMN_KEY", TType::Struct, 2))?;
+        f.write_to_out_protocol(o_prot)?;
+        o_prot.write_field_end()?;
+      },
+    }
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
@@ -3108,10 +3814,14 @@ pub struct ColumnChunk {
   pub column_index_offset: Option<i64>,
   /// Size of ColumnChunk's ColumnIndex, in bytes *
   pub column_index_length: Option<i32>,
+  /// Crypto metadata of encrypted columns *
+  pub crypto_metadata: Option<ColumnCryptoMetaData>,
+  /// Encrypted column metadata for this chunk *
+  pub encrypted_column_metadata: Option<Vec<u8>>,
 }
 
 impl ColumnChunk {
-  pub fn new<F1, F3, F4, F5, F6, F7>(file_path: F1, file_offset: i64, meta_data: F3, offset_index_offset: F4, offset_index_length: F5, column_index_offset: F6, column_index_length: F7) -> ColumnChunk where F1: Into<Option<String>>, F3: Into<Option<ColumnMetaData>>, F4: Into<Option<i64>>, F5: Into<Option<i32>>, F6: Into<Option<i64>>, F7: Into<Option<i32>> {
+  pub fn new<F1, F3, F4, F5, F6, F7, F8, F9>(file_path: F1, file_offset: i64, meta_data: F3, offset_index_offset: F4, offset_index_length: F5, column_index_offset: F6, column_index_length: F7, crypto_metadata: F8, encrypted_column_metadata: F9) -> ColumnChunk where F1: Into<Option<String>>, F3: Into<Option<ColumnMetaData>>, F4: Into<Option<i64>>, F5: Into<Option<i32>>, F6: Into<Option<i64>>, F7: Into<Option<i32>>, F8: Into<Option<ColumnCryptoMetaData>>, F9: Into<Option<Vec<u8>>> {
     ColumnChunk {
       file_path: file_path.into(),
       file_offset: file_offset,
@@ -3120,6 +3830,8 @@ impl ColumnChunk {
       offset_index_length: offset_index_length.into(),
       column_index_offset: column_index_offset.into(),
       column_index_length: column_index_length.into(),
+      crypto_metadata: crypto_metadata.into(),
+      encrypted_column_metadata: encrypted_column_metadata.into(),
     }
   }
   pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<ColumnChunk> {
@@ -3131,6 +3843,8 @@ impl ColumnChunk {
     let mut f_5: Option<i32> = None;
     let mut f_6: Option<i64> = None;
     let mut f_7: Option<i32> = None;
+    let mut f_8: Option<ColumnCryptoMetaData> = None;
+    let mut f_9: Option<Vec<u8>> = None;
     loop {
       let field_ident = i_prot.read_field_begin()?;
       if field_ident.field_type == TType::Stop {
@@ -3166,6 +3880,14 @@ impl ColumnChunk {
           let val = i_prot.read_i32()?;
           f_7 = Some(val);
         },
+        8 => {
+          let val = ColumnCryptoMetaData::read_from_in_protocol(i_prot)?;
+          f_8 = Some(val);
+        },
+        9 => {
+          let val = i_prot.read_bytes()?;
+          f_9 = Some(val);
+        },
         _ => {
           i_prot.skip(field_ident.field_type)?;
         },
@@ -3182,6 +3904,8 @@ impl ColumnChunk {
       offset_index_length: f_5,
       column_index_offset: f_6,
       column_index_length: f_7,
+      crypto_metadata: f_8,
+      encrypted_column_metadata: f_9,
     };
     Ok(ret)
   }
@@ -3239,6 +3963,22 @@ impl ColumnChunk {
     } else {
       ()
     }
+    if let Some(ref fld_var) = self.crypto_metadata {
+      o_prot.write_field_begin(&TFieldIdentifier::new("crypto_metadata", TType::Struct, 8))?;
+      fld_var.write_to_out_protocol(o_prot)?;
+      o_prot.write_field_end()?;
+      ()
+    } else {
+      ()
+    }
+    if let Some(ref fld_var) = self.encrypted_column_metadata {
+      o_prot.write_field_begin(&TFieldIdentifier::new("encrypted_column_metadata", TType::String, 9))?;
+      o_prot.write_bytes(fld_var)?;
+      o_prot.write_field_end()?;
+      ()
+    } else {
+      ()
+    }
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
@@ -3261,15 +4001,26 @@ pub struct RowGroup {
   /// If set, specifies a sort ordering of the rows in this RowGroup.
   /// The sorting columns can be a subset of all the columns.
   pub sorting_columns: Option<Vec<SortingColumn>>,
+  /// Byte offset from beginning of file to first page (data or dictionary)
+  /// in this row group *
+  pub file_offset: Option<i64>,
+  /// Total byte size of all compressed (and potentially encrypted) column data
+  /// in this row group *
+  pub total_compressed_size: Option<i64>,
+  /// Row group ordinal in the file *
+  pub ordinal: Option<i16>,
 }
 
 impl RowGroup {
-  pub fn new<F4>(columns: Vec<ColumnChunk>, total_byte_size: i64, num_rows: i64, sorting_columns: F4) -> RowGroup where F4: Into<Option<Vec<SortingColumn>>> {
+  pub fn new<F4, F5, F6, F7>(columns: Vec<ColumnChunk>, total_byte_size: i64, num_rows: i64, sorting_columns: F4, file_offset: F5, total_compressed_size: F6, ordinal: F7) -> RowGroup where F4: Into<Option<Vec<SortingColumn>>>, F5: Into<Option<i64>>, F6: Into<Option<i64>>, F7: Into<Option<i16>> {
     RowGroup {
       columns: columns,
       total_byte_size: total_byte_size,
       num_rows: num_rows,
       sorting_columns: sorting_columns.into(),
+      file_offset: file_offset.into(),
+      total_compressed_size: total_compressed_size.into(),
+      ordinal: ordinal.into(),
     }
   }
   pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<RowGroup> {
@@ -3278,6 +4029,9 @@ impl RowGroup {
     let mut f_2: Option<i64> = None;
     let mut f_3: Option<i64> = None;
     let mut f_4: Option<Vec<SortingColumn>> = None;
+    let mut f_5: Option<i64> = None;
+    let mut f_6: Option<i64> = None;
+    let mut f_7: Option<i16> = None;
     loop {
       let field_ident = i_prot.read_field_begin()?;
       if field_ident.field_type == TType::Stop {
@@ -3289,8 +4043,8 @@ impl RowGroup {
           let list_ident = i_prot.read_list_begin()?;
           let mut val: Vec<ColumnChunk> = Vec::with_capacity(list_ident.size as usize);
           for _ in 0..list_ident.size {
-            let list_elem_4 = ColumnChunk::read_from_in_protocol(i_prot)?;
-            val.push(list_elem_4);
+            let list_elem_5 = ColumnChunk::read_from_in_protocol(i_prot)?;
+            val.push(list_elem_5);
           }
           i_prot.read_list_end()?;
           f_1 = Some(val);
@@ -3307,11 +4061,23 @@ impl RowGroup {
           let list_ident = i_prot.read_list_begin()?;
           let mut val: Vec<SortingColumn> = Vec::with_capacity(list_ident.size as usize);
           for _ in 0..list_ident.size {
-            let list_elem_5 = SortingColumn::read_from_in_protocol(i_prot)?;
-            val.push(list_elem_5);
+            let list_elem_6 = SortingColumn::read_from_in_protocol(i_prot)?;
+            val.push(list_elem_6);
           }
           i_prot.read_list_end()?;
           f_4 = Some(val);
+        },
+        5 => {
+          let val = i_prot.read_i64()?;
+          f_5 = Some(val);
+        },
+        6 => {
+          let val = i_prot.read_i64()?;
+          f_6 = Some(val);
+        },
+        7 => {
+          let val = i_prot.read_i16()?;
+          f_7 = Some(val);
         },
         _ => {
           i_prot.skip(field_ident.field_type)?;
@@ -3328,6 +4094,9 @@ impl RowGroup {
       total_byte_size: f_2.expect("auto-generated code should have checked for presence of required fields"),
       num_rows: f_3.expect("auto-generated code should have checked for presence of required fields"),
       sorting_columns: f_4,
+      file_offset: f_5,
+      total_compressed_size: f_6,
+      ordinal: f_7,
     };
     Ok(ret)
   }
@@ -3354,6 +4123,30 @@ impl RowGroup {
         e.write_to_out_protocol(o_prot)?;
         o_prot.write_list_end()?;
       }
+      o_prot.write_field_end()?;
+      ()
+    } else {
+      ()
+    }
+    if let Some(fld_var) = self.file_offset {
+      o_prot.write_field_begin(&TFieldIdentifier::new("file_offset", TType::I64, 5))?;
+      o_prot.write_i64(fld_var)?;
+      o_prot.write_field_end()?;
+      ()
+    } else {
+      ()
+    }
+    if let Some(fld_var) = self.total_compressed_size {
+      o_prot.write_field_begin(&TFieldIdentifier::new("total_compressed_size", TType::I64, 6))?;
+      o_prot.write_i64(fld_var)?;
+      o_prot.write_field_end()?;
+      ()
+    } else {
+      ()
+    }
+    if let Some(fld_var) = self.ordinal {
+      o_prot.write_field_begin(&TFieldIdentifier::new("ordinal", TType::I16, 7))?;
+      o_prot.write_i16(fld_var)?;
       o_prot.write_field_end()?;
       ()
     } else {
@@ -3596,8 +4389,8 @@ impl OffsetIndex {
           let list_ident = i_prot.read_list_begin()?;
           let mut val: Vec<PageLocation> = Vec::with_capacity(list_ident.size as usize);
           for _ in 0..list_ident.size {
-            let list_elem_6 = PageLocation::read_from_in_protocol(i_prot)?;
-            val.push(list_elem_6);
+            let list_elem_7 = PageLocation::read_from_in_protocol(i_prot)?;
+            val.push(list_elem_7);
           }
           i_prot.read_list_end()?;
           f_1 = Some(val);
@@ -3690,8 +4483,8 @@ impl ColumnIndex {
           let list_ident = i_prot.read_list_begin()?;
           let mut val: Vec<bool> = Vec::with_capacity(list_ident.size as usize);
           for _ in 0..list_ident.size {
-            let list_elem_7 = i_prot.read_bool()?;
-            val.push(list_elem_7);
+            let list_elem_8 = i_prot.read_bool()?;
+            val.push(list_elem_8);
           }
           i_prot.read_list_end()?;
           f_1 = Some(val);
@@ -3700,8 +4493,8 @@ impl ColumnIndex {
           let list_ident = i_prot.read_list_begin()?;
           let mut val: Vec<Vec<u8>> = Vec::with_capacity(list_ident.size as usize);
           for _ in 0..list_ident.size {
-            let list_elem_8 = i_prot.read_bytes()?;
-            val.push(list_elem_8);
+            let list_elem_9 = i_prot.read_bytes()?;
+            val.push(list_elem_9);
           }
           i_prot.read_list_end()?;
           f_2 = Some(val);
@@ -3710,8 +4503,8 @@ impl ColumnIndex {
           let list_ident = i_prot.read_list_begin()?;
           let mut val: Vec<Vec<u8>> = Vec::with_capacity(list_ident.size as usize);
           for _ in 0..list_ident.size {
-            let list_elem_9 = i_prot.read_bytes()?;
-            val.push(list_elem_9);
+            let list_elem_10 = i_prot.read_bytes()?;
+            val.push(list_elem_10);
           }
           i_prot.read_list_end()?;
           f_3 = Some(val);
@@ -3724,8 +4517,8 @@ impl ColumnIndex {
           let list_ident = i_prot.read_list_begin()?;
           let mut val: Vec<i64> = Vec::with_capacity(list_ident.size as usize);
           for _ in 0..list_ident.size {
-            let list_elem_10 = i_prot.read_i64()?;
-            val.push(list_elem_10);
+            let list_elem_11 = i_prot.read_i64()?;
+            val.push(list_elem_11);
           }
           i_prot.read_list_end()?;
           f_5 = Some(val);
@@ -3795,6 +4588,298 @@ impl ColumnIndex {
 }
 
 //
+// AesGcmV1
+//
+
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct AesGcmV1 {
+  /// AAD prefix *
+  pub aad_prefix: Option<Vec<u8>>,
+  /// Unique file identifier part of AAD suffix *
+  pub aad_file_unique: Option<Vec<u8>>,
+  /// In files encrypted with AAD prefix without storing it,
+  /// readers must supply the prefix *
+  pub supply_aad_prefix: Option<bool>,
+}
+
+impl AesGcmV1 {
+  pub fn new<F1, F2, F3>(aad_prefix: F1, aad_file_unique: F2, supply_aad_prefix: F3) -> AesGcmV1 where F1: Into<Option<Vec<u8>>>, F2: Into<Option<Vec<u8>>>, F3: Into<Option<bool>> {
+    AesGcmV1 {
+      aad_prefix: aad_prefix.into(),
+      aad_file_unique: aad_file_unique.into(),
+      supply_aad_prefix: supply_aad_prefix.into(),
+    }
+  }
+  pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<AesGcmV1> {
+    i_prot.read_struct_begin()?;
+    let mut f_1: Option<Vec<u8>> = None;
+    let mut f_2: Option<Vec<u8>> = None;
+    let mut f_3: Option<bool> = None;
+    loop {
+      let field_ident = i_prot.read_field_begin()?;
+      if field_ident.field_type == TType::Stop {
+        break;
+      }
+      let field_id = field_id(&field_ident)?;
+      match field_id {
+        1 => {
+          let val = i_prot.read_bytes()?;
+          f_1 = Some(val);
+        },
+        2 => {
+          let val = i_prot.read_bytes()?;
+          f_2 = Some(val);
+        },
+        3 => {
+          let val = i_prot.read_bool()?;
+          f_3 = Some(val);
+        },
+        _ => {
+          i_prot.skip(field_ident.field_type)?;
+        },
+      };
+      i_prot.read_field_end()?;
+    }
+    i_prot.read_struct_end()?;
+    let ret = AesGcmV1 {
+      aad_prefix: f_1,
+      aad_file_unique: f_2,
+      supply_aad_prefix: f_3,
+    };
+    Ok(ret)
+  }
+  pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("AesGcmV1");
+    o_prot.write_struct_begin(&struct_ident)?;
+    if let Some(ref fld_var) = self.aad_prefix {
+      o_prot.write_field_begin(&TFieldIdentifier::new("aad_prefix", TType::String, 1))?;
+      o_prot.write_bytes(fld_var)?;
+      o_prot.write_field_end()?;
+      ()
+    } else {
+      ()
+    }
+    if let Some(ref fld_var) = self.aad_file_unique {
+      o_prot.write_field_begin(&TFieldIdentifier::new("aad_file_unique", TType::String, 2))?;
+      o_prot.write_bytes(fld_var)?;
+      o_prot.write_field_end()?;
+      ()
+    } else {
+      ()
+    }
+    if let Some(fld_var) = self.supply_aad_prefix {
+      o_prot.write_field_begin(&TFieldIdentifier::new("supply_aad_prefix", TType::Bool, 3))?;
+      o_prot.write_bool(fld_var)?;
+      o_prot.write_field_end()?;
+      ()
+    } else {
+      ()
+    }
+    o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+}
+
+impl Default for AesGcmV1 {
+  fn default() -> Self {
+    AesGcmV1{
+      aad_prefix: Some(Vec::new()),
+      aad_file_unique: Some(Vec::new()),
+      supply_aad_prefix: Some(false),
+    }
+  }
+}
+
+//
+// AesGcmCtrV1
+//
+
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct AesGcmCtrV1 {
+  /// AAD prefix *
+  pub aad_prefix: Option<Vec<u8>>,
+  /// Unique file identifier part of AAD suffix *
+  pub aad_file_unique: Option<Vec<u8>>,
+  /// In files encrypted with AAD prefix without storing it,
+  /// readers must supply the prefix *
+  pub supply_aad_prefix: Option<bool>,
+}
+
+impl AesGcmCtrV1 {
+  pub fn new<F1, F2, F3>(aad_prefix: F1, aad_file_unique: F2, supply_aad_prefix: F3) -> AesGcmCtrV1 where F1: Into<Option<Vec<u8>>>, F2: Into<Option<Vec<u8>>>, F3: Into<Option<bool>> {
+    AesGcmCtrV1 {
+      aad_prefix: aad_prefix.into(),
+      aad_file_unique: aad_file_unique.into(),
+      supply_aad_prefix: supply_aad_prefix.into(),
+    }
+  }
+  pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<AesGcmCtrV1> {
+    i_prot.read_struct_begin()?;
+    let mut f_1: Option<Vec<u8>> = None;
+    let mut f_2: Option<Vec<u8>> = None;
+    let mut f_3: Option<bool> = None;
+    loop {
+      let field_ident = i_prot.read_field_begin()?;
+      if field_ident.field_type == TType::Stop {
+        break;
+      }
+      let field_id = field_id(&field_ident)?;
+      match field_id {
+        1 => {
+          let val = i_prot.read_bytes()?;
+          f_1 = Some(val);
+        },
+        2 => {
+          let val = i_prot.read_bytes()?;
+          f_2 = Some(val);
+        },
+        3 => {
+          let val = i_prot.read_bool()?;
+          f_3 = Some(val);
+        },
+        _ => {
+          i_prot.skip(field_ident.field_type)?;
+        },
+      };
+      i_prot.read_field_end()?;
+    }
+    i_prot.read_struct_end()?;
+    let ret = AesGcmCtrV1 {
+      aad_prefix: f_1,
+      aad_file_unique: f_2,
+      supply_aad_prefix: f_3,
+    };
+    Ok(ret)
+  }
+  pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("AesGcmCtrV1");
+    o_prot.write_struct_begin(&struct_ident)?;
+    if let Some(ref fld_var) = self.aad_prefix {
+      o_prot.write_field_begin(&TFieldIdentifier::new("aad_prefix", TType::String, 1))?;
+      o_prot.write_bytes(fld_var)?;
+      o_prot.write_field_end()?;
+      ()
+    } else {
+      ()
+    }
+    if let Some(ref fld_var) = self.aad_file_unique {
+      o_prot.write_field_begin(&TFieldIdentifier::new("aad_file_unique", TType::String, 2))?;
+      o_prot.write_bytes(fld_var)?;
+      o_prot.write_field_end()?;
+      ()
+    } else {
+      ()
+    }
+    if let Some(fld_var) = self.supply_aad_prefix {
+      o_prot.write_field_begin(&TFieldIdentifier::new("supply_aad_prefix", TType::Bool, 3))?;
+      o_prot.write_bool(fld_var)?;
+      o_prot.write_field_end()?;
+      ()
+    } else {
+      ()
+    }
+    o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+}
+
+impl Default for AesGcmCtrV1 {
+  fn default() -> Self {
+    AesGcmCtrV1{
+      aad_prefix: Some(Vec::new()),
+      aad_file_unique: Some(Vec::new()),
+      supply_aad_prefix: Some(false),
+    }
+  }
+}
+
+//
+// EncryptionAlgorithm
+//
+
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub enum EncryptionAlgorithm {
+  AESGCMV1(AesGcmV1),
+  AESGCMCTRV1(AesGcmCtrV1),
+}
+
+impl EncryptionAlgorithm {
+  pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<EncryptionAlgorithm> {
+    let mut ret: Option<EncryptionAlgorithm> = None;
+    let mut received_field_count = 0;
+    i_prot.read_struct_begin()?;
+    loop {
+      let field_ident = i_prot.read_field_begin()?;
+      if field_ident.field_type == TType::Stop {
+        break;
+      }
+      let field_id = field_id(&field_ident)?;
+      match field_id {
+        1 => {
+          let val = AesGcmV1::read_from_in_protocol(i_prot)?;
+          if ret.is_none() {
+            ret = Some(EncryptionAlgorithm::AESGCMV1(val));
+          }
+          received_field_count += 1;
+        },
+        2 => {
+          let val = AesGcmCtrV1::read_from_in_protocol(i_prot)?;
+          if ret.is_none() {
+            ret = Some(EncryptionAlgorithm::AESGCMCTRV1(val));
+          }
+          received_field_count += 1;
+        },
+        _ => {
+          i_prot.skip(field_ident.field_type)?;
+          received_field_count += 1;
+        },
+      };
+      i_prot.read_field_end()?;
+    }
+    i_prot.read_struct_end()?;
+    if received_field_count == 0 {
+      Err(
+        thrift::Error::Protocol(
+          ProtocolError::new(
+            ProtocolErrorKind::InvalidData,
+            "received empty union from remote EncryptionAlgorithm"
+          )
+        )
+      )
+    } else if received_field_count > 1 {
+      Err(
+        thrift::Error::Protocol(
+          ProtocolError::new(
+            ProtocolErrorKind::InvalidData,
+            "received multiple fields for union from remote EncryptionAlgorithm"
+          )
+        )
+      )
+    } else {
+      Ok(ret.expect("return value should have been constructed"))
+    }
+  }
+  pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("EncryptionAlgorithm");
+    o_prot.write_struct_begin(&struct_ident)?;
+    match *self {
+      EncryptionAlgorithm::AESGCMV1(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("AES_GCM_V1", TType::Struct, 1))?;
+        f.write_to_out_protocol(o_prot)?;
+        o_prot.write_field_end()?;
+      },
+      EncryptionAlgorithm::AESGCMCTRV1(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("AES_GCM_CTR_V1", TType::Struct, 2))?;
+        f.write_to_out_protocol(o_prot)?;
+        o_prot.write_field_end()?;
+      },
+    }
+    o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+}
+
+//
 // FileMetaData
 //
 
@@ -3822,8 +4907,9 @@ pub struct FileMetaData {
   /// 
   pub created_by: Option<String>,
   /// Sort order used for the min_value and max_value fields of each column in
-  /// this file. Each sort order corresponds to one column, determined by its
-  /// position in the list, matching the position of the column in the schema.
+  /// this file. Sort orders are listed in the order matching the columns in the
+  /// schema. The indexes are not necessary the same though, because only leaf
+  /// nodes of the schema are represented in the list of sort orders.
   /// 
   /// Without column_orders, the meaning of the min_value and max_value fields is
   /// undefined. To ensure well-defined behaviour, if min_value and max_value are
@@ -3832,10 +4918,17 @@ pub struct FileMetaData {
   /// The obsolete min and max fields are always sorted by signed comparison
   /// regardless of column_orders.
   pub column_orders: Option<Vec<ColumnOrder>>,
+  /// Encryption algorithm. This field is set only in encrypted files
+  /// with plaintext footer. Files with encrypted footer store algorithm id
+  /// in FileCryptoMetaData structure.
+  pub encryption_algorithm: Option<EncryptionAlgorithm>,
+  /// Retrieval metadata of key used for signing the footer.
+  /// Used only in encrypted files with plaintext footer.
+  pub footer_signing_key_metadata: Option<Vec<u8>>,
 }
 
 impl FileMetaData {
-  pub fn new<F5, F6, F7>(version: i32, schema: Vec<SchemaElement>, num_rows: i64, row_groups: Vec<RowGroup>, key_value_metadata: F5, created_by: F6, column_orders: F7) -> FileMetaData where F5: Into<Option<Vec<KeyValue>>>, F6: Into<Option<String>>, F7: Into<Option<Vec<ColumnOrder>>> {
+  pub fn new<F5, F6, F7, F8, F9>(version: i32, schema: Vec<SchemaElement>, num_rows: i64, row_groups: Vec<RowGroup>, key_value_metadata: F5, created_by: F6, column_orders: F7, encryption_algorithm: F8, footer_signing_key_metadata: F9) -> FileMetaData where F5: Into<Option<Vec<KeyValue>>>, F6: Into<Option<String>>, F7: Into<Option<Vec<ColumnOrder>>>, F8: Into<Option<EncryptionAlgorithm>>, F9: Into<Option<Vec<u8>>> {
     FileMetaData {
       version: version,
       schema: schema,
@@ -3844,6 +4937,8 @@ impl FileMetaData {
       key_value_metadata: key_value_metadata.into(),
       created_by: created_by.into(),
       column_orders: column_orders.into(),
+      encryption_algorithm: encryption_algorithm.into(),
+      footer_signing_key_metadata: footer_signing_key_metadata.into(),
     }
   }
   pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<FileMetaData> {
@@ -3855,6 +4950,8 @@ impl FileMetaData {
     let mut f_5: Option<Vec<KeyValue>> = None;
     let mut f_6: Option<String> = None;
     let mut f_7: Option<Vec<ColumnOrder>> = None;
+    let mut f_8: Option<EncryptionAlgorithm> = None;
+    let mut f_9: Option<Vec<u8>> = None;
     loop {
       let field_ident = i_prot.read_field_begin()?;
       if field_ident.field_type == TType::Stop {
@@ -3870,8 +4967,8 @@ impl FileMetaData {
           let list_ident = i_prot.read_list_begin()?;
           let mut val: Vec<SchemaElement> = Vec::with_capacity(list_ident.size as usize);
           for _ in 0..list_ident.size {
-            let list_elem_11 = SchemaElement::read_from_in_protocol(i_prot)?;
-            val.push(list_elem_11);
+            let list_elem_12 = SchemaElement::read_from_in_protocol(i_prot)?;
+            val.push(list_elem_12);
           }
           i_prot.read_list_end()?;
           f_2 = Some(val);
@@ -3884,8 +4981,8 @@ impl FileMetaData {
           let list_ident = i_prot.read_list_begin()?;
           let mut val: Vec<RowGroup> = Vec::with_capacity(list_ident.size as usize);
           for _ in 0..list_ident.size {
-            let list_elem_12 = RowGroup::read_from_in_protocol(i_prot)?;
-            val.push(list_elem_12);
+            let list_elem_13 = RowGroup::read_from_in_protocol(i_prot)?;
+            val.push(list_elem_13);
           }
           i_prot.read_list_end()?;
           f_4 = Some(val);
@@ -3894,8 +4991,8 @@ impl FileMetaData {
           let list_ident = i_prot.read_list_begin()?;
           let mut val: Vec<KeyValue> = Vec::with_capacity(list_ident.size as usize);
           for _ in 0..list_ident.size {
-            let list_elem_13 = KeyValue::read_from_in_protocol(i_prot)?;
-            val.push(list_elem_13);
+            let list_elem_14 = KeyValue::read_from_in_protocol(i_prot)?;
+            val.push(list_elem_14);
           }
           i_prot.read_list_end()?;
           f_5 = Some(val);
@@ -3908,11 +5005,19 @@ impl FileMetaData {
           let list_ident = i_prot.read_list_begin()?;
           let mut val: Vec<ColumnOrder> = Vec::with_capacity(list_ident.size as usize);
           for _ in 0..list_ident.size {
-            let list_elem_14 = ColumnOrder::read_from_in_protocol(i_prot)?;
-            val.push(list_elem_14);
+            let list_elem_15 = ColumnOrder::read_from_in_protocol(i_prot)?;
+            val.push(list_elem_15);
           }
           i_prot.read_list_end()?;
           f_7 = Some(val);
+        },
+        8 => {
+          let val = EncryptionAlgorithm::read_from_in_protocol(i_prot)?;
+          f_8 = Some(val);
+        },
+        9 => {
+          let val = i_prot.read_bytes()?;
+          f_9 = Some(val);
         },
         _ => {
           i_prot.skip(field_ident.field_type)?;
@@ -3933,6 +5038,8 @@ impl FileMetaData {
       key_value_metadata: f_5,
       created_by: f_6,
       column_orders: f_7,
+      encryption_algorithm: f_8,
+      footer_signing_key_metadata: f_9,
     };
     Ok(ret)
   }
@@ -3991,7 +5098,99 @@ impl FileMetaData {
     } else {
       ()
     }
+    if let Some(ref fld_var) = self.encryption_algorithm {
+      o_prot.write_field_begin(&TFieldIdentifier::new("encryption_algorithm", TType::Struct, 8))?;
+      fld_var.write_to_out_protocol(o_prot)?;
+      o_prot.write_field_end()?;
+      ()
+    } else {
+      ()
+    }
+    if let Some(ref fld_var) = self.footer_signing_key_metadata {
+      o_prot.write_field_begin(&TFieldIdentifier::new("footer_signing_key_metadata", TType::String, 9))?;
+      o_prot.write_bytes(fld_var)?;
+      o_prot.write_field_end()?;
+      ()
+    } else {
+      ()
+    }
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
 }
+
+//
+// FileCryptoMetaData
+//
+
+/// Crypto metadata for files with encrypted footer *
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct FileCryptoMetaData {
+  /// Encryption algorithm. This field is only used for files
+  /// with encrypted footer. Files with plaintext footer store algorithm id
+  /// inside footer (FileMetaData structure).
+  pub encryption_algorithm: EncryptionAlgorithm,
+  /// Retrieval metadata of key used for encryption of footer,
+  /// and (possibly) columns *
+  pub key_metadata: Option<Vec<u8>>,
+}
+
+impl FileCryptoMetaData {
+  pub fn new<F2>(encryption_algorithm: EncryptionAlgorithm, key_metadata: F2) -> FileCryptoMetaData where F2: Into<Option<Vec<u8>>> {
+    FileCryptoMetaData {
+      encryption_algorithm: encryption_algorithm,
+      key_metadata: key_metadata.into(),
+    }
+  }
+  pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<FileCryptoMetaData> {
+    i_prot.read_struct_begin()?;
+    let mut f_1: Option<EncryptionAlgorithm> = None;
+    let mut f_2: Option<Vec<u8>> = None;
+    loop {
+      let field_ident = i_prot.read_field_begin()?;
+      if field_ident.field_type == TType::Stop {
+        break;
+      }
+      let field_id = field_id(&field_ident)?;
+      match field_id {
+        1 => {
+          let val = EncryptionAlgorithm::read_from_in_protocol(i_prot)?;
+          f_1 = Some(val);
+        },
+        2 => {
+          let val = i_prot.read_bytes()?;
+          f_2 = Some(val);
+        },
+        _ => {
+          i_prot.skip(field_ident.field_type)?;
+        },
+      };
+      i_prot.read_field_end()?;
+    }
+    i_prot.read_struct_end()?;
+    verify_required_field_exists("FileCryptoMetaData.encryption_algorithm", &f_1)?;
+    let ret = FileCryptoMetaData {
+      encryption_algorithm: f_1.expect("auto-generated code should have checked for presence of required fields"),
+      key_metadata: f_2,
+    };
+    Ok(ret)
+  }
+  pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("FileCryptoMetaData");
+    o_prot.write_struct_begin(&struct_ident)?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("encryption_algorithm", TType::Struct, 1))?;
+    self.encryption_algorithm.write_to_out_protocol(o_prot)?;
+    o_prot.write_field_end()?;
+    if let Some(ref fld_var) = self.key_metadata {
+      o_prot.write_field_begin(&TFieldIdentifier::new("key_metadata", TType::String, 2))?;
+      o_prot.write_bytes(fld_var)?;
+      o_prot.write_field_end()?;
+      ()
+    } else {
+      ()
+    }
+    o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+}
+
