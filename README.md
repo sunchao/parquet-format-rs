@@ -15,10 +15,11 @@ The below summarises the version mappings.
 
 | parquet-format | parquet-format-rs |
 | -------------- | ----------------- |
-| 2.4.0          | 2.4.*             |
-| 2.5.0          | 2.5.*             |
-| 2.6.0          | 2.6.*             |
+| 2.8.0          | 4.0.*             |
 | 2.7.0          | 3.0.*             |
+| 2.6.0          | 2.6.*             |
+| 2.5.0          | 2.5.*             |
+| 2.4.0          | 2.4.*             |
 
 
 ## Updating Parquet format
