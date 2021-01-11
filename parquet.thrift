@@ -292,7 +292,7 @@ struct TimeType {
  * Allowed for physical types: INT32, INT64
  */
 struct IntType {
-  1: required byte bitWidth
+  1: required i8 bitWidth
   2: required bool isSigned
 }
 
@@ -457,6 +457,15 @@ enum Encoding {
   /** Dictionary encoding: the ids are encoded using the RLE encoding
    */
   RLE_DICTIONARY = 8;
+
+  /** Encoding for floating-point data.
+      K byte-streams are created where K is the size in bytes of the data type.
+      The individual bytes of an FP value are scattered to the corresponding stream and
+      the streams are concatenated.
+      This itself does not reduce the size of the data but can lead to better compression
+      afterwards.
+   */
+  BYTE_STREAM_SPLIT = 9;
 }
 
 /**
@@ -557,7 +566,7 @@ struct DataPageHeaderV2 {
   If missing it is considered compressed */
   7: optional bool is_compressed = 1;
 
-  /** optional statistics for this column chunk */
+  /** optional statistics for the data in this page **/
   8: optional Statistics statistics;
 }
 
@@ -637,6 +646,8 @@ struct PageHeader {
    *     uncompressed definition levels and the compressed column values.
    *     If no compression scheme is specified, the CRC shall be calculated on
    *     the uncompressed concatenation.
+   * - In encrypted columns, CRC is calculated after page encryption; the
+   *   encryption itself is performed after page compression (if compressed)
    * If enabled, this allows for disabling checksumming in HDFS if only a few
    * pages need to be read.
    **/
