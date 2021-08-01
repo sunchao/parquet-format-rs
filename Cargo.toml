@@ -33,4 +33,4 @@ repository = "https://github.com/sunchao/parquet-format-rs"
 keywords = ["parquet", "hadoop"]
 
 [dependencies]
-thrift = "0.13"
+thrift = {path = "../thrift/lib/rs" }
