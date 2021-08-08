@@ -17,7 +17,7 @@ use std::rc::Rc;
 
 use thrift::OrderedFloat;
 use thrift::{ApplicationError, ApplicationErrorKind, ProtocolError, ProtocolErrorKind, TThriftClient};
-use thrift::protocol::{TFieldIdentifier, TListIdentifier, TMapIdentifier, TMessageIdentifier, TMessageType, TInputProtocol, TInputStreamProtocol, TOutputProtocol, TSetIdentifier, TStructIdentifier, TType};
+use thrift::protocol::{TFieldIdentifier, TListIdentifier, TMapIdentifier, TMessageIdentifier, TMessageType, TInputProtocol, TInputStreamProtocol, TOutputProtocol, TOutputStreamProtocol, TSetIdentifier, TStructIdentifier, TType};
 use thrift::protocol::field_id;
 use thrift::protocol::verify_expected_message_type;
 use thrift::protocol::verify_expected_sequence_number;
@@ -54,6 +54,10 @@ impl Type {
   #[allow(clippy::trivially_copy_pass_by_ref)]
   pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
     o_prot.write_i32(self.0)
+  }
+  #[allow(clippy::trivially_copy_pass_by_ref)]
+  pub async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    o_prot.write_i32(self.0).await
   }
   pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<Type> {
     let enum_value = i_prot.read_i32()?;
@@ -224,6 +228,10 @@ impl ConvertedType {
   pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
     o_prot.write_i32(self.0)
   }
+  #[allow(clippy::trivially_copy_pass_by_ref)]
+  pub async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    o_prot.write_i32(self.0).await
+  }
   pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<ConvertedType> {
     let enum_value = i_prot.read_i32()?;
     Ok(ConvertedType::from(enum_value))
@@ -301,6 +309,10 @@ impl FieldRepetitionType {
   #[allow(clippy::trivially_copy_pass_by_ref)]
   pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
     o_prot.write_i32(self.0)
+  }
+  #[allow(clippy::trivially_copy_pass_by_ref)]
+  pub async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    o_prot.write_i32(self.0).await
   }
   pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<FieldRepetitionType> {
     let enum_value = i_prot.read_i32()?;
@@ -401,6 +413,10 @@ impl Encoding {
   pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
     o_prot.write_i32(self.0)
   }
+  #[allow(clippy::trivially_copy_pass_by_ref)]
+  pub async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    o_prot.write_i32(self.0).await
+  }
   pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<Encoding> {
     let enum_value = i_prot.read_i32()?;
     Ok(Encoding::from(enum_value))
@@ -476,6 +492,10 @@ impl CompressionCodec {
   pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
     o_prot.write_i32(self.0)
   }
+  #[allow(clippy::trivially_copy_pass_by_ref)]
+  pub async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    o_prot.write_i32(self.0).await
+  }
   pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<CompressionCodec> {
     let enum_value = i_prot.read_i32()?;
     Ok(CompressionCodec::from(enum_value))
@@ -537,6 +557,10 @@ impl PageType {
   pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
     o_prot.write_i32(self.0)
   }
+  #[allow(clippy::trivially_copy_pass_by_ref)]
+  pub async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    o_prot.write_i32(self.0).await
+  }
   pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<PageType> {
     let enum_value = i_prot.read_i32()?;
     Ok(PageType::from(enum_value))
@@ -594,6 +618,10 @@ impl BoundaryOrder {
   #[allow(clippy::trivially_copy_pass_by_ref)]
   pub fn write_to_out_protocol(&self, o_prot: &mut dyn TOutputProtocol) -> thrift::Result<()> {
     o_prot.write_i32(self.0)
+  }
+  #[allow(clippy::trivially_copy_pass_by_ref)]
+  pub async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    o_prot.write_i32(self.0).await
   }
   pub fn read_from_in_protocol(i_prot: &mut dyn TInputProtocol) -> thrift::Result<BoundaryOrder> {
     let enum_value = i_prot.read_i32()?;
@@ -796,34 +824,70 @@ impl Statistics {
     if let Some(ref fld_var) = self.max {
       o_prot.write_field_begin(&TFieldIdentifier::new("max", TType::String, 1))?;
       o_prot.write_bytes(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.min {
       o_prot.write_field_begin(&TFieldIdentifier::new("min", TType::String, 2))?;
       o_prot.write_bytes(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(fld_var) = self.null_count {
       o_prot.write_field_begin(&TFieldIdentifier::new("null_count", TType::I64, 3))?;
       o_prot.write_i64(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(fld_var) = self.distinct_count {
       o_prot.write_field_begin(&TFieldIdentifier::new("distinct_count", TType::I64, 4))?;
       o_prot.write_i64(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.max_value {
       o_prot.write_field_begin(&TFieldIdentifier::new("max_value", TType::String, 5))?;
       o_prot.write_bytes(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.min_value {
       o_prot.write_field_begin(&TFieldIdentifier::new("min_value", TType::String, 6))?;
       o_prot.write_bytes(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("Statistics");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    if let Some(ref fld_var) = self.max {
+      o_prot.write_field_begin(&TFieldIdentifier::new("max", TType::String, 1)).await?;
+      o_prot.write_bytes(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.min {
+      o_prot.write_field_begin(&TFieldIdentifier::new("min", TType::String, 2)).await?;
+      o_prot.write_bytes(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(fld_var) = self.null_count {
+      o_prot.write_field_begin(&TFieldIdentifier::new("null_count", TType::I64, 3)).await?;
+      o_prot.write_i64(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(fld_var) = self.distinct_count {
+      o_prot.write_field_begin(&TFieldIdentifier::new("distinct_count", TType::I64, 4)).await?;
+      o_prot.write_i64(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.max_value {
+      o_prot.write_field_begin(&TFieldIdentifier::new("max_value", TType::String, 5)).await?;
+      o_prot.write_bytes(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.min_value {
+      o_prot.write_field_begin(&TFieldIdentifier::new("min_value", TType::String, 6)).await?;
+      o_prot.write_bytes(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -898,6 +962,12 @@ impl StringType {
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("StringType");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
+    o_prot.write_struct_end()
+  }
 }
 
 impl Default for StringType {
@@ -960,6 +1030,12 @@ impl UUIDType {
     let struct_ident = TStructIdentifier::new("UUIDType");
     o_prot.write_struct_begin(&struct_ident)?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("UUIDType");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -1026,6 +1102,12 @@ impl MapType {
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("MapType");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
+    o_prot.write_struct_end()
+  }
 }
 
 impl Default for MapType {
@@ -1088,6 +1170,12 @@ impl ListType {
     let struct_ident = TStructIdentifier::new("ListType");
     o_prot.write_struct_begin(&struct_ident)?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("ListType");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -1154,6 +1242,12 @@ impl EnumType {
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("EnumType");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
+    o_prot.write_struct_end()
+  }
 }
 
 impl Default for EnumType {
@@ -1216,6 +1310,12 @@ impl DateType {
     let struct_ident = TStructIdentifier::new("DateType");
     o_prot.write_struct_begin(&struct_ident)?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("DateType");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -1285,6 +1385,12 @@ impl NullType {
     let struct_ident = TStructIdentifier::new("NullType");
     o_prot.write_struct_begin(&struct_ident)?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("NullType");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -1398,6 +1504,18 @@ impl DecimalType {
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("DecimalType");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("scale", TType::I32, 1)).await?;
+    o_prot.write_i32(self.scale).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("precision", TType::I32, 2)).await?;
+    o_prot.write_i32(self.precision).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_stop().await?;
+    o_prot.write_struct_end()
+  }
 }
 
 //
@@ -1455,6 +1573,12 @@ impl MilliSeconds {
     let struct_ident = TStructIdentifier::new("MilliSeconds");
     o_prot.write_struct_begin(&struct_ident)?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("MilliSeconds");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -1521,6 +1645,12 @@ impl MicroSeconds {
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("MicroSeconds");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
+    o_prot.write_struct_end()
+  }
 }
 
 impl Default for MicroSeconds {
@@ -1583,6 +1713,12 @@ impl NanoSeconds {
     let struct_ident = TStructIdentifier::new("NanoSeconds");
     o_prot.write_struct_begin(&struct_ident)?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("NanoSeconds");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -1752,6 +1888,29 @@ impl TimeUnit {
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
+  pub async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("TimeUnit");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    match *self {
+      TimeUnit::MILLIS(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("MILLIS", TType::Struct, 1)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+      TimeUnit::MICROS(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("MICROS", TType::Struct, 2)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+      TimeUnit::NANOS(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("NANOS", TType::Struct, 3)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+    }
+    o_prot.write_field_stop().await?;
+    o_prot.write_struct_end()
+  }
 }
 
 //
@@ -1854,6 +2013,18 @@ impl TimestampType {
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("TimestampType");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("isAdjustedToUTC", TType::Bool, 1)).await?;
+    o_prot.write_bool(self.is_adjusted_to_u_t_c).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("unit", TType::Struct, 2)).await?;
+    self.unit.write_to_out_stream_protocol(o_prot).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_stop().await?;
+    o_prot.write_struct_end()
+  }
 }
 
 //
@@ -1954,6 +2125,18 @@ impl TimeType {
     self.unit.write_to_out_protocol(o_prot)?;
     o_prot.write_field_end()?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("TimeType");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("isAdjustedToUTC", TType::Bool, 1)).await?;
+    o_prot.write_bool(self.is_adjusted_to_u_t_c).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("unit", TType::Struct, 2)).await?;
+    self.unit.write_to_out_stream_protocol(o_prot).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -2060,6 +2243,18 @@ impl IntType {
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("IntType");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("bitWidth", TType::I08, 1)).await?;
+    o_prot.write_i8(self.bit_width).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("isSigned", TType::Bool, 2)).await?;
+    o_prot.write_bool(self.is_signed).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_stop().await?;
+    o_prot.write_struct_end()
+  }
 }
 
 //
@@ -2119,6 +2314,12 @@ impl JsonType {
     let struct_ident = TStructIdentifier::new("JsonType");
     o_prot.write_struct_begin(&struct_ident)?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("JsonType");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -2186,6 +2387,12 @@ impl BsonType {
     let struct_ident = TStructIdentifier::new("BsonType");
     o_prot.write_struct_begin(&struct_ident)?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("BsonType");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -2555,6 +2762,79 @@ impl LogicalType {
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
+  pub async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("LogicalType");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    match *self {
+      LogicalType::STRING(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("STRING", TType::Struct, 1)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+      LogicalType::MAP(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("MAP", TType::Struct, 2)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+      LogicalType::LIST(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("LIST", TType::Struct, 3)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+      LogicalType::ENUM(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("ENUM", TType::Struct, 4)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+      LogicalType::DECIMAL(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("DECIMAL", TType::Struct, 5)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+      LogicalType::DATE(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("DATE", TType::Struct, 6)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+      LogicalType::TIME(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("TIME", TType::Struct, 7)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+      LogicalType::TIMESTAMP(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("TIMESTAMP", TType::Struct, 8)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+      LogicalType::INTEGER(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("INTEGER", TType::Struct, 10)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+      LogicalType::UNKNOWN(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("UNKNOWN", TType::Struct, 11)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+      LogicalType::JSON(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("JSON", TType::Struct, 12)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+      LogicalType::BSON(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("BSON", TType::Struct, 13)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+      LogicalType::UUID(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("UUID", TType::Struct, 14)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+    }
+    o_prot.write_field_stop().await?;
+    o_prot.write_struct_end()
+  }
 }
 
 //
@@ -2784,17 +3064,17 @@ impl SchemaElement {
     if let Some(ref fld_var) = self.type_ {
       o_prot.write_field_begin(&TFieldIdentifier::new("type", TType::I32, 1))?;
       fld_var.write_to_out_protocol(o_prot)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(fld_var) = self.type_length {
       o_prot.write_field_begin(&TFieldIdentifier::new("type_length", TType::I32, 2))?;
       o_prot.write_i32(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.repetition_type {
       o_prot.write_field_begin(&TFieldIdentifier::new("repetition_type", TType::I32, 3))?;
       fld_var.write_to_out_protocol(o_prot)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_begin(&TFieldIdentifier::new("name", TType::String, 4))?;
     o_prot.write_string(&self.name)?;
@@ -2802,34 +3082,88 @@ impl SchemaElement {
     if let Some(fld_var) = self.num_children {
       o_prot.write_field_begin(&TFieldIdentifier::new("num_children", TType::I32, 5))?;
       o_prot.write_i32(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.converted_type {
       o_prot.write_field_begin(&TFieldIdentifier::new("converted_type", TType::I32, 6))?;
       fld_var.write_to_out_protocol(o_prot)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(fld_var) = self.scale {
       o_prot.write_field_begin(&TFieldIdentifier::new("scale", TType::I32, 7))?;
       o_prot.write_i32(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(fld_var) = self.precision {
       o_prot.write_field_begin(&TFieldIdentifier::new("precision", TType::I32, 8))?;
       o_prot.write_i32(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(fld_var) = self.field_id {
       o_prot.write_field_begin(&TFieldIdentifier::new("field_id", TType::I32, 9))?;
       o_prot.write_i32(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.logical_type {
       o_prot.write_field_begin(&TFieldIdentifier::new("logicalType", TType::Struct, 10))?;
       fld_var.write_to_out_protocol(o_prot)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("SchemaElement");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    if let Some(ref fld_var) = self.type_ {
+      o_prot.write_field_begin(&TFieldIdentifier::new("type", TType::I32, 1)).await?;
+      fld_var.write_to_out_stream_protocol(o_prot).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(fld_var) = self.type_length {
+      o_prot.write_field_begin(&TFieldIdentifier::new("type_length", TType::I32, 2)).await?;
+      o_prot.write_i32(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.repetition_type {
+      o_prot.write_field_begin(&TFieldIdentifier::new("repetition_type", TType::I32, 3)).await?;
+      fld_var.write_to_out_stream_protocol(o_prot).await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_begin(&TFieldIdentifier::new("name", TType::String, 4)).await?;
+    o_prot.write_string(&self.name).await?;
+    o_prot.write_field_end()?;
+    if let Some(fld_var) = self.num_children {
+      o_prot.write_field_begin(&TFieldIdentifier::new("num_children", TType::I32, 5)).await?;
+      o_prot.write_i32(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.converted_type {
+      o_prot.write_field_begin(&TFieldIdentifier::new("converted_type", TType::I32, 6)).await?;
+      fld_var.write_to_out_stream_protocol(o_prot).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(fld_var) = self.scale {
+      o_prot.write_field_begin(&TFieldIdentifier::new("scale", TType::I32, 7)).await?;
+      o_prot.write_i32(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(fld_var) = self.precision {
+      o_prot.write_field_begin(&TFieldIdentifier::new("precision", TType::I32, 8)).await?;
+      o_prot.write_i32(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(fld_var) = self.field_id {
+      o_prot.write_field_begin(&TFieldIdentifier::new("field_id", TType::I32, 9)).await?;
+      o_prot.write_i32(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.logical_type {
+      o_prot.write_field_begin(&TFieldIdentifier::new("logicalType", TType::Struct, 10)).await?;
+      fld_var.write_to_out_stream_protocol(o_prot).await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -2989,9 +3323,32 @@ impl DataPageHeader {
     if let Some(ref fld_var) = self.statistics {
       o_prot.write_field_begin(&TFieldIdentifier::new("statistics", TType::Struct, 5))?;
       fld_var.write_to_out_protocol(o_prot)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("DataPageHeader");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("num_values", TType::I32, 1)).await?;
+    o_prot.write_i32(self.num_values).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("encoding", TType::I32, 2)).await?;
+    self.encoding.write_to_out_stream_protocol(o_prot).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("definition_level_encoding", TType::I32, 3)).await?;
+    self.definition_level_encoding.write_to_out_stream_protocol(o_prot).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("repetition_level_encoding", TType::I32, 4)).await?;
+    self.repetition_level_encoding.write_to_out_stream_protocol(o_prot).await?;
+    o_prot.write_field_end()?;
+    if let Some(ref fld_var) = self.statistics {
+      o_prot.write_field_begin(&TFieldIdentifier::new("statistics", TType::Struct, 5)).await?;
+      fld_var.write_to_out_stream_protocol(o_prot).await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -3050,6 +3407,12 @@ impl IndexPageHeader {
     let struct_ident = TStructIdentifier::new("IndexPageHeader");
     o_prot.write_struct_begin(&struct_ident)?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("IndexPageHeader");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -3174,9 +3537,26 @@ impl DictionaryPageHeader {
     if let Some(fld_var) = self.is_sorted {
       o_prot.write_field_begin(&TFieldIdentifier::new("is_sorted", TType::Bool, 3))?;
       o_prot.write_bool(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("DictionaryPageHeader");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("num_values", TType::I32, 1)).await?;
+    o_prot.write_i32(self.num_values).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("encoding", TType::I32, 2)).await?;
+    self.encoding.write_to_out_stream_protocol(o_prot).await?;
+    o_prot.write_field_end()?;
+    if let Some(fld_var) = self.is_sorted {
+      o_prot.write_field_begin(&TFieldIdentifier::new("is_sorted", TType::Bool, 3)).await?;
+      o_prot.write_bool(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -3399,14 +3779,48 @@ impl DataPageHeaderV2 {
     if let Some(fld_var) = self.is_compressed {
       o_prot.write_field_begin(&TFieldIdentifier::new("is_compressed", TType::Bool, 7))?;
       o_prot.write_bool(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.statistics {
       o_prot.write_field_begin(&TFieldIdentifier::new("statistics", TType::Struct, 8))?;
       fld_var.write_to_out_protocol(o_prot)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("DataPageHeaderV2");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("num_values", TType::I32, 1)).await?;
+    o_prot.write_i32(self.num_values).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("num_nulls", TType::I32, 2)).await?;
+    o_prot.write_i32(self.num_nulls).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("num_rows", TType::I32, 3)).await?;
+    o_prot.write_i32(self.num_rows).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("encoding", TType::I32, 4)).await?;
+    self.encoding.write_to_out_stream_protocol(o_prot).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("definition_levels_byte_length", TType::I32, 5)).await?;
+    o_prot.write_i32(self.definition_levels_byte_length).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("repetition_levels_byte_length", TType::I32, 6)).await?;
+    o_prot.write_i32(self.repetition_levels_byte_length).await?;
+    o_prot.write_field_end()?;
+    if let Some(fld_var) = self.is_compressed {
+      o_prot.write_field_begin(&TFieldIdentifier::new("is_compressed", TType::Bool, 7)).await?;
+      o_prot.write_bool(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.statistics {
+      o_prot.write_field_begin(&TFieldIdentifier::new("statistics", TType::Struct, 8)).await?;
+      fld_var.write_to_out_stream_protocol(o_prot).await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -3466,6 +3880,12 @@ impl SplitBlockAlgorithm {
     let struct_ident = TStructIdentifier::new("SplitBlockAlgorithm");
     o_prot.write_struct_begin(&struct_ident)?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("SplitBlockAlgorithm");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -3595,6 +4015,19 @@ impl BloomFilterAlgorithm {
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
+  pub async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("BloomFilterAlgorithm");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    match *self {
+      BloomFilterAlgorithm::BLOCK(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("BLOCK", TType::Struct, 1)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+    }
+    o_prot.write_field_stop().await?;
+    o_prot.write_struct_end()
+  }
 }
 
 //
@@ -3654,6 +4087,12 @@ impl XxHash {
     let struct_ident = TStructIdentifier::new("XxHash");
     o_prot.write_struct_begin(&struct_ident)?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("XxHash");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -3783,6 +4222,19 @@ impl BloomFilterHash {
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
+  pub async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("BloomFilterHash");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    match *self {
+      BloomFilterHash::XXHASH(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("XXHASH", TType::Struct, 1)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+    }
+    o_prot.write_field_stop().await?;
+    o_prot.write_struct_end()
+  }
 }
 
 //
@@ -3841,6 +4293,12 @@ impl Uncompressed {
     let struct_ident = TStructIdentifier::new("Uncompressed");
     o_prot.write_struct_begin(&struct_ident)?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("Uncompressed");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -3968,6 +4426,19 @@ impl BloomFilterCompression {
       },
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  pub async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("BloomFilterCompression");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    match *self {
+      BloomFilterCompression::UNCOMPRESSED(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("UNCOMPRESSED", TType::Struct, 1)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -4112,6 +4583,24 @@ impl BloomFilterHeader {
     self.compression.write_to_out_protocol(o_prot)?;
     o_prot.write_field_end()?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("BloomFilterHeader");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("numBytes", TType::I32, 1)).await?;
+    o_prot.write_i32(self.num_bytes).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("algorithm", TType::Struct, 2)).await?;
+    self.algorithm.write_to_out_stream_protocol(o_prot).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("hash", TType::Struct, 3)).await?;
+    self.hash.write_to_out_stream_protocol(o_prot).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("compression", TType::Struct, 4)).await?;
+    self.compression.write_to_out_stream_protocol(o_prot).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -4331,29 +4820,69 @@ impl PageHeader {
     if let Some(fld_var) = self.crc {
       o_prot.write_field_begin(&TFieldIdentifier::new("crc", TType::I32, 4))?;
       o_prot.write_i32(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.data_page_header {
       o_prot.write_field_begin(&TFieldIdentifier::new("data_page_header", TType::Struct, 5))?;
       fld_var.write_to_out_protocol(o_prot)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.index_page_header {
       o_prot.write_field_begin(&TFieldIdentifier::new("index_page_header", TType::Struct, 6))?;
       fld_var.write_to_out_protocol(o_prot)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.dictionary_page_header {
       o_prot.write_field_begin(&TFieldIdentifier::new("dictionary_page_header", TType::Struct, 7))?;
       fld_var.write_to_out_protocol(o_prot)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.data_page_header_v2 {
       o_prot.write_field_begin(&TFieldIdentifier::new("data_page_header_v2", TType::Struct, 8))?;
       fld_var.write_to_out_protocol(o_prot)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("PageHeader");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("type", TType::I32, 1)).await?;
+    self.type_.write_to_out_stream_protocol(o_prot).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("uncompressed_page_size", TType::I32, 2)).await?;
+    o_prot.write_i32(self.uncompressed_page_size).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("compressed_page_size", TType::I32, 3)).await?;
+    o_prot.write_i32(self.compressed_page_size).await?;
+    o_prot.write_field_end()?;
+    if let Some(fld_var) = self.crc {
+      o_prot.write_field_begin(&TFieldIdentifier::new("crc", TType::I32, 4)).await?;
+      o_prot.write_i32(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.data_page_header {
+      o_prot.write_field_begin(&TFieldIdentifier::new("data_page_header", TType::Struct, 5)).await?;
+      fld_var.write_to_out_stream_protocol(o_prot).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.index_page_header {
+      o_prot.write_field_begin(&TFieldIdentifier::new("index_page_header", TType::Struct, 6)).await?;
+      fld_var.write_to_out_stream_protocol(o_prot).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.dictionary_page_header {
+      o_prot.write_field_begin(&TFieldIdentifier::new("dictionary_page_header", TType::Struct, 7)).await?;
+      fld_var.write_to_out_stream_protocol(o_prot).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.data_page_header_v2 {
+      o_prot.write_field_begin(&TFieldIdentifier::new("data_page_header_v2", TType::Struct, 8)).await?;
+      fld_var.write_to_out_stream_protocol(o_prot).await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -4451,9 +4980,23 @@ impl KeyValue {
     if let Some(ref fld_var) = self.value {
       o_prot.write_field_begin(&TFieldIdentifier::new("value", TType::String, 2))?;
       o_prot.write_string(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("KeyValue");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("key", TType::String, 1)).await?;
+    o_prot.write_string(&self.key).await?;
+    o_prot.write_field_end()?;
+    if let Some(ref fld_var) = self.value {
+      o_prot.write_field_begin(&TFieldIdentifier::new("value", TType::String, 2)).await?;
+      o_prot.write_string(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -4579,6 +5122,21 @@ impl SortingColumn {
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("SortingColumn");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("column_idx", TType::I32, 1)).await?;
+    o_prot.write_i32(self.column_idx).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("descending", TType::Bool, 2)).await?;
+    o_prot.write_bool(self.descending).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("nulls_first", TType::Bool, 3)).await?;
+    o_prot.write_bool(self.nulls_first).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_stop().await?;
+    o_prot.write_struct_end()
+  }
 }
 
 //
@@ -4699,6 +5257,21 @@ impl PageEncodingStats {
     o_prot.write_i32(self.count)?;
     o_prot.write_field_end()?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("PageEncodingStats");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("page_type", TType::I32, 1)).await?;
+    self.page_type.write_to_out_stream_protocol(o_prot).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("encoding", TType::I32, 2)).await?;
+    self.encoding.write_to_out_stream_protocol(o_prot).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("count", TType::I32, 3)).await?;
+    o_prot.write_i32(self.count).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -5074,7 +5647,7 @@ impl ColumnMetaData {
         e.write_to_out_protocol(o_prot)?;
       }
       o_prot.write_list_end()?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_begin(&TFieldIdentifier::new("data_page_offset", TType::I64, 9))?;
     o_prot.write_i64(self.data_page_offset)?;
@@ -5082,17 +5655,17 @@ impl ColumnMetaData {
     if let Some(fld_var) = self.index_page_offset {
       o_prot.write_field_begin(&TFieldIdentifier::new("index_page_offset", TType::I64, 10))?;
       o_prot.write_i64(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(fld_var) = self.dictionary_page_offset {
       o_prot.write_field_begin(&TFieldIdentifier::new("dictionary_page_offset", TType::I64, 11))?;
       o_prot.write_i64(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.statistics {
       o_prot.write_field_begin(&TFieldIdentifier::new("statistics", TType::Struct, 12))?;
       fld_var.write_to_out_protocol(o_prot)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.encoding_stats {
       o_prot.write_field_begin(&TFieldIdentifier::new("encoding_stats", TType::List, 13))?;
@@ -5101,14 +5674,90 @@ impl ColumnMetaData {
         e.write_to_out_protocol(o_prot)?;
       }
       o_prot.write_list_end()?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(fld_var) = self.bloom_filter_offset {
       o_prot.write_field_begin(&TFieldIdentifier::new("bloom_filter_offset", TType::I64, 14))?;
       o_prot.write_i64(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("ColumnMetaData");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("type", TType::I32, 1)).await?;
+    self.type_.write_to_out_stream_protocol(o_prot).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("encodings", TType::List, 2)).await?;
+    o_prot.write_list_begin(&TListIdentifier::new(TType::I32, self.encodings.len() as i32)).await?;
+    for e in &self.encodings {
+      e.write_to_out_stream_protocol(o_prot).await?;
+    }
+    o_prot.write_list_end().await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("path_in_schema", TType::List, 3)).await?;
+    o_prot.write_list_begin(&TListIdentifier::new(TType::String, self.path_in_schema.len() as i32)).await?;
+    for e in &self.path_in_schema {
+      o_prot.write_string(e).await?;
+    }
+    o_prot.write_list_end().await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("codec", TType::I32, 4)).await?;
+    self.codec.write_to_out_stream_protocol(o_prot).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("num_values", TType::I64, 5)).await?;
+    o_prot.write_i64(self.num_values).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("total_uncompressed_size", TType::I64, 6)).await?;
+    o_prot.write_i64(self.total_uncompressed_size).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("total_compressed_size", TType::I64, 7)).await?;
+    o_prot.write_i64(self.total_compressed_size).await?;
+    o_prot.write_field_end()?;
+    if let Some(ref fld_var) = self.key_value_metadata {
+      o_prot.write_field_begin(&TFieldIdentifier::new("key_value_metadata", TType::List, 8)).await?;
+      o_prot.write_list_begin(&TListIdentifier::new(TType::Struct, fld_var.len() as i32)).await?;
+      for e in fld_var {
+        e.write_to_out_stream_protocol(o_prot).await?;
+      }
+      o_prot.write_list_end().await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_begin(&TFieldIdentifier::new("data_page_offset", TType::I64, 9)).await?;
+    o_prot.write_i64(self.data_page_offset).await?;
+    o_prot.write_field_end()?;
+    if let Some(fld_var) = self.index_page_offset {
+      o_prot.write_field_begin(&TFieldIdentifier::new("index_page_offset", TType::I64, 10)).await?;
+      o_prot.write_i64(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(fld_var) = self.dictionary_page_offset {
+      o_prot.write_field_begin(&TFieldIdentifier::new("dictionary_page_offset", TType::I64, 11)).await?;
+      o_prot.write_i64(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.statistics {
+      o_prot.write_field_begin(&TFieldIdentifier::new("statistics", TType::Struct, 12)).await?;
+      fld_var.write_to_out_stream_protocol(o_prot).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.encoding_stats {
+      o_prot.write_field_begin(&TFieldIdentifier::new("encoding_stats", TType::List, 13)).await?;
+      o_prot.write_list_begin(&TListIdentifier::new(TType::Struct, fld_var.len() as i32)).await?;
+      for e in fld_var {
+        e.write_to_out_stream_protocol(o_prot).await?;
+      }
+      o_prot.write_list_end().await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(fld_var) = self.bloom_filter_offset {
+      o_prot.write_field_begin(&TFieldIdentifier::new("bloom_filter_offset", TType::I64, 14)).await?;
+      o_prot.write_i64(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -5167,6 +5816,12 @@ impl EncryptionWithFooterKey {
     let struct_ident = TStructIdentifier::new("EncryptionWithFooterKey");
     o_prot.write_struct_begin(&struct_ident)?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("EncryptionWithFooterKey");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -5287,9 +5942,27 @@ impl EncryptionWithColumnKey {
     if let Some(ref fld_var) = self.key_metadata {
       o_prot.write_field_begin(&TFieldIdentifier::new("key_metadata", TType::String, 2))?;
       o_prot.write_bytes(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("EncryptionWithColumnKey");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("path_in_schema", TType::List, 1)).await?;
+    o_prot.write_list_begin(&TListIdentifier::new(TType::String, self.path_in_schema.len() as i32)).await?;
+    for e in &self.path_in_schema {
+      o_prot.write_string(e).await?;
+    }
+    o_prot.write_list_end().await?;
+    o_prot.write_field_end()?;
+    if let Some(ref fld_var) = self.key_metadata {
+      o_prot.write_field_begin(&TFieldIdentifier::new("key_metadata", TType::String, 2)).await?;
+      o_prot.write_bytes(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -5431,6 +6104,24 @@ impl ColumnCryptoMetaData {
       },
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  pub async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("ColumnCryptoMetaData");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    match *self {
+      ColumnCryptoMetaData::ENCRYPTIONWITHFOOTERKEY(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("ENCRYPTION_WITH_FOOTER_KEY", TType::Struct, 1)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+      ColumnCryptoMetaData::ENCRYPTIONWITHCOLUMNKEY(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("ENCRYPTION_WITH_COLUMN_KEY", TType::Struct, 2)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -5636,7 +6327,7 @@ impl ColumnChunk {
     if let Some(ref fld_var) = self.file_path {
       o_prot.write_field_begin(&TFieldIdentifier::new("file_path", TType::String, 1))?;
       o_prot.write_string(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_begin(&TFieldIdentifier::new("file_offset", TType::I64, 2))?;
     o_prot.write_i64(self.file_offset)?;
@@ -5644,39 +6335,88 @@ impl ColumnChunk {
     if let Some(ref fld_var) = self.meta_data {
       o_prot.write_field_begin(&TFieldIdentifier::new("meta_data", TType::Struct, 3))?;
       fld_var.write_to_out_protocol(o_prot)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(fld_var) = self.offset_index_offset {
       o_prot.write_field_begin(&TFieldIdentifier::new("offset_index_offset", TType::I64, 4))?;
       o_prot.write_i64(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(fld_var) = self.offset_index_length {
       o_prot.write_field_begin(&TFieldIdentifier::new("offset_index_length", TType::I32, 5))?;
       o_prot.write_i32(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(fld_var) = self.column_index_offset {
       o_prot.write_field_begin(&TFieldIdentifier::new("column_index_offset", TType::I64, 6))?;
       o_prot.write_i64(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(fld_var) = self.column_index_length {
       o_prot.write_field_begin(&TFieldIdentifier::new("column_index_length", TType::I32, 7))?;
       o_prot.write_i32(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.crypto_metadata {
       o_prot.write_field_begin(&TFieldIdentifier::new("crypto_metadata", TType::Struct, 8))?;
       fld_var.write_to_out_protocol(o_prot)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.encrypted_column_metadata {
       o_prot.write_field_begin(&TFieldIdentifier::new("encrypted_column_metadata", TType::String, 9))?;
       o_prot.write_bytes(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("ColumnChunk");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    if let Some(ref fld_var) = self.file_path {
+      o_prot.write_field_begin(&TFieldIdentifier::new("file_path", TType::String, 1)).await?;
+      o_prot.write_string(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_begin(&TFieldIdentifier::new("file_offset", TType::I64, 2)).await?;
+    o_prot.write_i64(self.file_offset).await?;
+    o_prot.write_field_end()?;
+    if let Some(ref fld_var) = self.meta_data {
+      o_prot.write_field_begin(&TFieldIdentifier::new("meta_data", TType::Struct, 3)).await?;
+      fld_var.write_to_out_stream_protocol(o_prot).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(fld_var) = self.offset_index_offset {
+      o_prot.write_field_begin(&TFieldIdentifier::new("offset_index_offset", TType::I64, 4)).await?;
+      o_prot.write_i64(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(fld_var) = self.offset_index_length {
+      o_prot.write_field_begin(&TFieldIdentifier::new("offset_index_length", TType::I32, 5)).await?;
+      o_prot.write_i32(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(fld_var) = self.column_index_offset {
+      o_prot.write_field_begin(&TFieldIdentifier::new("column_index_offset", TType::I64, 6)).await?;
+      o_prot.write_i64(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(fld_var) = self.column_index_length {
+      o_prot.write_field_begin(&TFieldIdentifier::new("column_index_length", TType::I32, 7)).await?;
+      o_prot.write_i32(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.crypto_metadata {
+      o_prot.write_field_begin(&TFieldIdentifier::new("crypto_metadata", TType::Struct, 8)).await?;
+      fld_var.write_to_out_stream_protocol(o_prot).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.encrypted_column_metadata {
+      o_prot.write_field_begin(&TFieldIdentifier::new("encrypted_column_metadata", TType::String, 9)).await?;
+      o_prot.write_bytes(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -5897,24 +6637,67 @@ impl RowGroup {
         e.write_to_out_protocol(o_prot)?;
       }
       o_prot.write_list_end()?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(fld_var) = self.file_offset {
       o_prot.write_field_begin(&TFieldIdentifier::new("file_offset", TType::I64, 5))?;
       o_prot.write_i64(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(fld_var) = self.total_compressed_size {
       o_prot.write_field_begin(&TFieldIdentifier::new("total_compressed_size", TType::I64, 6))?;
       o_prot.write_i64(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(fld_var) = self.ordinal {
       o_prot.write_field_begin(&TFieldIdentifier::new("ordinal", TType::I16, 7))?;
       o_prot.write_i16(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("RowGroup");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("columns", TType::List, 1)).await?;
+    o_prot.write_list_begin(&TListIdentifier::new(TType::Struct, self.columns.len() as i32)).await?;
+    for e in &self.columns {
+      e.write_to_out_stream_protocol(o_prot).await?;
+    }
+    o_prot.write_list_end().await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("total_byte_size", TType::I64, 2)).await?;
+    o_prot.write_i64(self.total_byte_size).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("num_rows", TType::I64, 3)).await?;
+    o_prot.write_i64(self.num_rows).await?;
+    o_prot.write_field_end()?;
+    if let Some(ref fld_var) = self.sorting_columns {
+      o_prot.write_field_begin(&TFieldIdentifier::new("sorting_columns", TType::List, 4)).await?;
+      o_prot.write_list_begin(&TListIdentifier::new(TType::Struct, fld_var.len() as i32)).await?;
+      for e in fld_var {
+        e.write_to_out_stream_protocol(o_prot).await?;
+      }
+      o_prot.write_list_end().await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(fld_var) = self.file_offset {
+      o_prot.write_field_begin(&TFieldIdentifier::new("file_offset", TType::I64, 5)).await?;
+      o_prot.write_i64(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(fld_var) = self.total_compressed_size {
+      o_prot.write_field_begin(&TFieldIdentifier::new("total_compressed_size", TType::I64, 6)).await?;
+      o_prot.write_i64(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(fld_var) = self.ordinal {
+      o_prot.write_field_begin(&TFieldIdentifier::new("ordinal", TType::I16, 7)).await?;
+      o_prot.write_i16(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -5974,6 +6757,12 @@ impl TypeDefinedOrder {
     let struct_ident = TStructIdentifier::new("TypeDefinedOrder");
     o_prot.write_struct_begin(&struct_ident)?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("TypeDefinedOrder");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -6103,6 +6892,19 @@ impl ColumnOrder {
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
+  pub async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("ColumnOrder");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    match *self {
+      ColumnOrder::TYPEORDER(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("TYPE_ORDER", TType::Struct, 1)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+    }
+    o_prot.write_field_stop().await?;
+    o_prot.write_struct_end()
+  }
 }
 
 //
@@ -6226,6 +7028,21 @@ impl PageLocation {
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("PageLocation");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("offset", TType::I64, 1)).await?;
+    o_prot.write_i64(self.offset).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("compressed_page_size", TType::I32, 2)).await?;
+    o_prot.write_i32(self.compressed_page_size).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("first_row_index", TType::I64, 3)).await?;
+    o_prot.write_i64(self.first_row_index).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_stop().await?;
+    o_prot.write_struct_end()
+  }
 }
 
 //
@@ -6322,6 +7139,19 @@ impl OffsetIndex {
     o_prot.write_list_end()?;
     o_prot.write_field_end()?;
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("OffsetIndex");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("page_locations", TType::List, 1)).await?;
+    o_prot.write_list_begin(&TListIdentifier::new(TType::Struct, self.page_locations.len() as i32)).await?;
+    for e in &self.page_locations {
+      e.write_to_out_stream_protocol(o_prot).await?;
+    }
+    o_prot.write_list_end().await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -6558,9 +7388,48 @@ impl ColumnIndex {
         o_prot.write_i64(*e)?;
       }
       o_prot.write_list_end()?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("ColumnIndex");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("null_pages", TType::List, 1)).await?;
+    o_prot.write_list_begin(&TListIdentifier::new(TType::Bool, self.null_pages.len() as i32)).await?;
+    for e in &self.null_pages {
+      o_prot.write_bool(*e).await?;
+    }
+    o_prot.write_list_end().await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("min_values", TType::List, 2)).await?;
+    o_prot.write_list_begin(&TListIdentifier::new(TType::String, self.min_values.len() as i32)).await?;
+    for e in &self.min_values {
+      o_prot.write_bytes(e).await?;
+    }
+    o_prot.write_list_end().await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("max_values", TType::List, 3)).await?;
+    o_prot.write_list_begin(&TListIdentifier::new(TType::String, self.max_values.len() as i32)).await?;
+    for e in &self.max_values {
+      o_prot.write_bytes(e).await?;
+    }
+    o_prot.write_list_end().await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("boundary_order", TType::I32, 4)).await?;
+    self.boundary_order.write_to_out_stream_protocol(o_prot).await?;
+    o_prot.write_field_end()?;
+    if let Some(ref fld_var) = self.null_counts {
+      o_prot.write_field_begin(&TFieldIdentifier::new("null_counts", TType::List, 5)).await?;
+      o_prot.write_list_begin(&TListIdentifier::new(TType::I64, fld_var.len() as i32)).await?;
+      for e in fld_var {
+        o_prot.write_i64(*e).await?;
+      }
+      o_prot.write_list_end().await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -6670,19 +7539,40 @@ impl AesGcmV1 {
     if let Some(ref fld_var) = self.aad_prefix {
       o_prot.write_field_begin(&TFieldIdentifier::new("aad_prefix", TType::String, 1))?;
       o_prot.write_bytes(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.aad_file_unique {
       o_prot.write_field_begin(&TFieldIdentifier::new("aad_file_unique", TType::String, 2))?;
       o_prot.write_bytes(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(fld_var) = self.supply_aad_prefix {
       o_prot.write_field_begin(&TFieldIdentifier::new("supply_aad_prefix", TType::Bool, 3))?;
       o_prot.write_bool(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("AesGcmV1");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    if let Some(ref fld_var) = self.aad_prefix {
+      o_prot.write_field_begin(&TFieldIdentifier::new("aad_prefix", TType::String, 1)).await?;
+      o_prot.write_bytes(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.aad_file_unique {
+      o_prot.write_field_begin(&TFieldIdentifier::new("aad_file_unique", TType::String, 2)).await?;
+      o_prot.write_bytes(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(fld_var) = self.supply_aad_prefix {
+      o_prot.write_field_begin(&TFieldIdentifier::new("supply_aad_prefix", TType::Bool, 3)).await?;
+      o_prot.write_bool(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -6802,19 +7692,40 @@ impl AesGcmCtrV1 {
     if let Some(ref fld_var) = self.aad_prefix {
       o_prot.write_field_begin(&TFieldIdentifier::new("aad_prefix", TType::String, 1))?;
       o_prot.write_bytes(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.aad_file_unique {
       o_prot.write_field_begin(&TFieldIdentifier::new("aad_file_unique", TType::String, 2))?;
       o_prot.write_bytes(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(fld_var) = self.supply_aad_prefix {
       o_prot.write_field_begin(&TFieldIdentifier::new("supply_aad_prefix", TType::Bool, 3))?;
       o_prot.write_bool(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("AesGcmCtrV1");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    if let Some(ref fld_var) = self.aad_prefix {
+      o_prot.write_field_begin(&TFieldIdentifier::new("aad_prefix", TType::String, 1)).await?;
+      o_prot.write_bytes(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.aad_file_unique {
+      o_prot.write_field_begin(&TFieldIdentifier::new("aad_file_unique", TType::String, 2)).await?;
+      o_prot.write_bytes(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(fld_var) = self.supply_aad_prefix {
+      o_prot.write_field_begin(&TFieldIdentifier::new("supply_aad_prefix", TType::Bool, 3)).await?;
+      o_prot.write_bool(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -6966,6 +7877,24 @@ impl EncryptionAlgorithm {
       },
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  pub async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("EncryptionAlgorithm");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    match *self {
+      EncryptionAlgorithm::AESGCMV1(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("AES_GCM_V1", TType::Struct, 1)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+      EncryptionAlgorithm::AESGCMCTRV1(ref f) => {
+        o_prot.write_field_begin(&TFieldIdentifier::new("AES_GCM_CTR_V1", TType::Struct, 2)).await?;
+        f.write_to_out_stream_protocol(o_prot).await?;
+        o_prot.write_field_end()?;
+      },
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -7266,12 +8195,12 @@ impl FileMetaData {
         e.write_to_out_protocol(o_prot)?;
       }
       o_prot.write_list_end()?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.created_by {
       o_prot.write_field_begin(&TFieldIdentifier::new("created_by", TType::String, 6))?;
       o_prot.write_string(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.column_orders {
       o_prot.write_field_begin(&TFieldIdentifier::new("column_orders", TType::List, 7))?;
@@ -7280,19 +8209,78 @@ impl FileMetaData {
         e.write_to_out_protocol(o_prot)?;
       }
       o_prot.write_list_end()?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.encryption_algorithm {
       o_prot.write_field_begin(&TFieldIdentifier::new("encryption_algorithm", TType::Struct, 8))?;
       fld_var.write_to_out_protocol(o_prot)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     if let Some(ref fld_var) = self.footer_signing_key_metadata {
       o_prot.write_field_begin(&TFieldIdentifier::new("footer_signing_key_metadata", TType::String, 9))?;
       o_prot.write_bytes(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_stop()?;
+    o_prot.write_struct_end()
+  }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("FileMetaData");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("version", TType::I32, 1)).await?;
+    o_prot.write_i32(self.version).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("schema", TType::List, 2)).await?;
+    o_prot.write_list_begin(&TListIdentifier::new(TType::Struct, self.schema.len() as i32)).await?;
+    for e in &self.schema {
+      e.write_to_out_stream_protocol(o_prot).await?;
+    }
+    o_prot.write_list_end().await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("num_rows", TType::I64, 3)).await?;
+    o_prot.write_i64(self.num_rows).await?;
+    o_prot.write_field_end()?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("row_groups", TType::List, 4)).await?;
+    o_prot.write_list_begin(&TListIdentifier::new(TType::Struct, self.row_groups.len() as i32)).await?;
+    for e in &self.row_groups {
+      e.write_to_out_stream_protocol(o_prot).await?;
+    }
+    o_prot.write_list_end().await?;
+    o_prot.write_field_end()?;
+    if let Some(ref fld_var) = self.key_value_metadata {
+      o_prot.write_field_begin(&TFieldIdentifier::new("key_value_metadata", TType::List, 5)).await?;
+      o_prot.write_list_begin(&TListIdentifier::new(TType::Struct, fld_var.len() as i32)).await?;
+      for e in fld_var {
+        e.write_to_out_stream_protocol(o_prot).await?;
+      }
+      o_prot.write_list_end().await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.created_by {
+      o_prot.write_field_begin(&TFieldIdentifier::new("created_by", TType::String, 6)).await?;
+      o_prot.write_string(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.column_orders {
+      o_prot.write_field_begin(&TFieldIdentifier::new("column_orders", TType::List, 7)).await?;
+      o_prot.write_list_begin(&TListIdentifier::new(TType::Struct, fld_var.len() as i32)).await?;
+      for e in fld_var {
+        e.write_to_out_stream_protocol(o_prot).await?;
+      }
+      o_prot.write_list_end().await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.encryption_algorithm {
+      o_prot.write_field_begin(&TFieldIdentifier::new("encryption_algorithm", TType::Struct, 8)).await?;
+      fld_var.write_to_out_stream_protocol(o_prot).await?;
+      o_prot.write_field_end()?;
+    }
+    if let Some(ref fld_var) = self.footer_signing_key_metadata {
+      o_prot.write_field_begin(&TFieldIdentifier::new("footer_signing_key_metadata", TType::String, 9)).await?;
+      o_prot.write_bytes(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_stop().await?;
     o_prot.write_struct_end()
   }
 }
@@ -7395,9 +8383,24 @@ impl FileCryptoMetaData {
     if let Some(ref fld_var) = self.key_metadata {
       o_prot.write_field_begin(&TFieldIdentifier::new("key_metadata", TType::String, 2))?;
       o_prot.write_bytes(fld_var)?;
-      o_prot.write_field_end()?
+      o_prot.write_field_end()?;
     }
     o_prot.write_field_stop()?;
     o_prot.write_struct_end()
   }
+  async fn write_to_out_stream_protocol(&self, o_prot: &mut dyn TOutputStreamProtocol) -> thrift::Result<()> {
+    let struct_ident = TStructIdentifier::new("FileCryptoMetaData");
+    o_prot.write_struct_begin(&struct_ident).await?;
+    o_prot.write_field_begin(&TFieldIdentifier::new("encryption_algorithm", TType::Struct, 1)).await?;
+    self.encryption_algorithm.write_to_out_stream_protocol(o_prot).await?;
+    o_prot.write_field_end()?;
+    if let Some(ref fld_var) = self.key_metadata {
+      o_prot.write_field_begin(&TFieldIdentifier::new("key_metadata", TType::String, 2)).await?;
+      o_prot.write_bytes(fld_var).await?;
+      o_prot.write_field_end()?;
+    }
+    o_prot.write_field_stop().await?;
+    o_prot.write_struct_end()
+  }
 }
+
