@@ -23,6 +23,17 @@ The below summarises the version mappings.
 
 
 ## Updating Parquet format
+
+```
+git clone https://github.com/apache/thrift
+cd thrift
+git checkout v0.13.0
+docker build -t thrift build/docker/ubuntu-bionic
+docker run -v $(pwd):/thrift/src -it thrift wget https://raw.githubusercontent.com/apache/parquet-format/apache-parquet-format-2.9.0/src/main/thrift/parquet.thrift && thrift --gen rs parquet.thrift
+```
+
+Then copy the generated `parquet.rs` into `src/parquetformat.rs`.
+
 - Update the `parquet.thrift` file
 - Run `./generate_parquet_format.sh`
 - Commit changes
