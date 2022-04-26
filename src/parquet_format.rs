@@ -77,9 +77,10 @@ impl TryFrom<i32> for Type {
   }
 }
 
-/// Common types used by frameworks(e.g. hive, pig) using parquet.  This helps map
-/// between types in those frameworks to the base types in parquet.  This is only
-/// metadata and not needed to read or write the data.
+/// DEPRECATED: Common types used by frameworks(e.g. hive, pig) using parquet.
+/// ConvertedType is superseded by LogicalType.  This enum should not be extended.
+/// 
+/// See LogicalTypes.md for conversion between ConvertedType and LogicalType.
 #[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum ConvertedType {
   /// a BYTE_ARRAY actually contains UTF8 encoded chars
@@ -344,10 +345,11 @@ impl TryFrom<i32> for Encoding {
 
 /// Supported compression algorithms.
 /// 
-/// Codecs added in 2.4 can be read by readers based on 2.4 and later.
+/// Codecs added in format version X.Y can be read by readers based on X.Y and later.
 /// Codec support may vary between readers based on the format version and
-/// libraries available at runtime. Gzip, Snappy, and LZ4 codecs are
-/// widely available, while Zstd and Brotli require additional libraries.
+/// libraries available at runtime.
+/// 
+/// See Compression.md for a detailed specification of these algorithms.
 #[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum CompressionCodec {
   Uncompressed = 0,
@@ -357,6 +359,7 @@ pub enum CompressionCodec {
   Brotli = 4,
   Lz4 = 5,
   Zstd = 6,
+  Lz4Raw = 7,
 }
 
 impl CompressionCodec {
@@ -378,6 +381,7 @@ impl TryFrom<i32> for CompressionCodec {
       4 => Ok(CompressionCodec::Brotli),
       5 => Ok(CompressionCodec::Lz4),
       6 => Ok(CompressionCodec::Zstd),
+      7 => Ok(CompressionCodec::Lz4Raw),
       _ => {
         Err(
           thrift::Error::Protocol(
@@ -1822,11 +1826,15 @@ pub struct SchemaElement {
   /// The children count is used to construct the nested relationship.
   /// This field is not set when the element is a primitive type
   pub num_children: Option<i32>,
-  /// When the schema is the result of a conversion from another model
+  /// DEPRECATED: When the schema is the result of a conversion from another model.
   /// Used to record the original type to help with cross conversion.
+  /// 
+  /// This is superseded by logicalType.
   pub converted_type: Option<ConvertedType>,
-  /// Used when this column contains decimal data.
+  /// DEPRECATED: Used when this column contains decimal data.
   /// See the DECIMAL converted type for more details.
+  /// 
+  /// This is superseded by using the DecimalType annotation in logicalType.
   pub scale: Option<i32>,
   pub precision: Option<i32>,
   /// When the original schema supports field ids, this will save the
